@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>E_commerce.Repository</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\E-commerce.Models\E-commerce.Models.csproj" />
+    <ProjectReference Include="..\E-commerce.Services\E-commerce.Services.csproj" />
+    <ProjectReference Include="..\E-commerce.ViewModels\E-commerce.ViewModels.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="AdminRepository\" />
+    <Folder Include="PaymentRepository\" />
+  </ItemGroup>
+
+</Project>
