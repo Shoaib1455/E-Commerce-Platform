@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace E_commerce.Repository.OrderRepository
 {
-    public class OrderRepository
+    public class OrderRepository:IOrderRepository
     {
         private readonly EcommerceContext _context;
         public OrderRepository(EcommerceContext context) 

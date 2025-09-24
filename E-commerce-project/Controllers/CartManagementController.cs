@@ -3,9 +3,12 @@ using E_commerce.Repository.CartRepository;
 using E_commerce.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace E_commerce_project.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class CartManagementController : Controller
     {
         private readonly ICartRepository _cartRepository;
@@ -14,9 +17,11 @@ namespace E_commerce_project.Controllers
         {
             _cartRepository = cartRepository;
         }
-        [HttpPost]
+        [HttpPost("Add Product")]
         public async Task<bool> AddProductToCart([FromBody] CartdetailsVM cartdetails)
         {
+            var userid= int.Parse( User.FindFirstValue(ClaimTypes.NameIdentifier));
+            cartdetails.carts.Userid = userid;
             if (cartdetails == null)
             {
                 return false;
@@ -24,21 +29,21 @@ namespace E_commerce_project.Controllers
             var isproductadded = await _cartRepository.AddProductToCart(cartdetails);
             return isproductadded;
         }
-        [HttpGet]
-        public async Task<CartdetailsVM> GetUsersCart(long userid)
+        [HttpGet("User cart")]
+        public async Task<CartListVM> GetUsersCart(long userid)
         {
             var usercart = await _cartRepository.GetUserCart(userid);
             return usercart;
 
         }
-        [HttpPost]
-        public async Task<bool> RemoveItemFromCart(long itemid)
+        [HttpPost("Remove item")]
+        public async Task<bool> RemoveItemFromCart(int itemid)
         {
             if (itemid == 0) { return false; }
             var isremoved = await _cartRepository.RemoveItemFromCart(itemid);
             return isremoved;
         }
-        [HttpGet]
+        [HttpDelete("Remove Cart")]
         public async Task<bool> RemoveCart(int cartid)
         {
             var iscartremoved= await _cartRepository.RemoveCart(cartid);

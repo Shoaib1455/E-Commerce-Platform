@@ -1,5 +1,8 @@
 using E_commerce.Models;
 using E_commerce.Models.Data;
+using E_commerce.Repository.CartRepository;
+using E_commerce.Repository.OrderRepository;
+using E_commerce.Repository.ProductRepository;
 using E_commerce.Repository.UserRepository;
 using E_commerce.Services;
 using E_commerce_project.Middleware;
@@ -15,6 +18,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddSwaggerGen(c =>
 {

@@ -11,9 +11,9 @@ namespace E_commerce.Repository.CartRepository
     public interface ICartRepository
     {
         public Task<bool> AddProductToCart(CartdetailsVM cartdetails);
-        public Task<CartdetailsVM> GetUserCart(long Userid);
-        public Task<bool> UpdateQuantityOfItem(long itemid);
-        public Task<bool> RemoveItemFromCart(long itemid);
+        public Task<CartListVM> GetUserCart(long Userid);
+        public Task<bool> UpdateQuantityOfItem(int itemid);
+        public Task<bool> RemoveItemFromCart(int itemid);
         public Task<bool> RemoveCart(int cartid);
     }
 }

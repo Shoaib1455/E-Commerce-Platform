@@ -27,5 +27,7 @@ public partial class Usermanagement
 
     public DateTime? Resettokenexpiry { get; set; }
 
+    public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
+
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 }

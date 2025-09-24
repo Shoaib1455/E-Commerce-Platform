@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce_project.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class ProductManagementController : Controller
     {
         private readonly IProductRepository _productRepository;
@@ -13,31 +15,31 @@ namespace E_commerce_project.Controllers
         {
             _productRepository = productRepository;
         }
-        [HttpPost]
+        [HttpPost("addproduct")]
         public async Task<Product> AddProduct(ProductVM product)
         {
             var addedproduct = await _productRepository.AddProduct(product);
             return addedproduct;
         }
-        [HttpPut]
+        [HttpPut("updateproduct")]
         public async Task<Product> UpdateProduct(ProductVM product)
         {
             return await _productRepository.UpdateProduct(product);
         }
 
-        [HttpGet]
+        [HttpGet("getproductbyid")]
         public async Task<Product> GetProductById(long pid)
         {
             var getproduct = await _productRepository.GetProductById(pid);
             return getproduct;
         }
-        [HttpGet]
+        [HttpGet("getallproducts")]
         public async Task<List<Product>> GetAllProducts()
         {
             var productslist = await _productRepository.GetAllProducts();
             return productslist;
         }
-        [HttpDelete]
+        [HttpDelete("deleteproduct")]
         public async Task<bool> DeleteProduct(int pid)
         {
             var isproductdeleted=await _productRepository.DeleteProduct(pid);

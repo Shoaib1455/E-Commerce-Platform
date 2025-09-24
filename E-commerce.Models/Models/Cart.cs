@@ -15,6 +15,8 @@ public partial class Cart
 
     public DateTimeOffset? Updatedat { get; set; }
 
+    public bool? Isactive { get; set; }
+
     public virtual ICollection<Cartitem> Cartitems { get; set; } = new List<Cartitem>();
 
     public virtual Usermanagement? User { get; set; }

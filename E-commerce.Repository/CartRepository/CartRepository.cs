@@ -1,82 +1,89 @@
 ﻿using E_commerce.Models.Data;
 using E_commerce.Models.Models;
 using E_commerce.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace E_commerce.Repository.CartRepository
 {
-    public class CartRepository
+    public class CartRepository:ICartRepository
     {
         private readonly EcommerceContext _context;
         public CartRepository(EcommerceContext context) 
         {
              _context = context;
         }
-        public async Task<bool> AddProductToCart(Cart cart,Cartitem cartitem)
+        //Cart cart,Cartitem cartitem
+        public async Task<bool> AddProductToCart(CartdetailsVM cartdetails)
         {
-            var cartdetails=await _context.Carts.Where(c=>c.Id==cart.Id).FirstOrDefaultAsync();
-       
-            if (cartdetails == null)
+            var cartdetails1=await _context.Carts.FirstOrDefaultAsync(c => c.Userid == cartdetails.carts.Userid);
+
+            if (cartdetails1 == null)
             {
                 Cart c = new Cart()
                 {
-                    Userid = cart.Userid,
-                    Status = cart.Status
+                    Userid = cartdetails.carts.Userid,
+                    Status = cartdetails.carts.Status
 
                 };
-                 await _context.Carts.AddAsync(c);
-                var newcart = await _context.Carts.Where(c => c.Id == cart.Id).FirstOrDefaultAsync();
+                await _context.Carts.AddAsync(c);
+                await _context.SaveChangesAsync();
+                var newcartid = c.Id;
                 Cartitem citems = new Cartitem()
                 {
-                    Cartid= newcart.Id,
-                    Productid= cartitem.Productid,
-                    Quantity= cartitem.Quantity,
-                    Unitprice=cartitem.Unitprice,
+                    Cartid = newcartid,
+                    Productid = cartdetails.cartitems[0].Productid,
+                    Quantity = cartdetails.cartitems[0].Quantity,
+                    Unitprice = cartdetails.cartitems[0].Unitprice,
 
                 };
-            }
-            var cartitemdetails = _context.Cartitems.Where(c => c.Cartid == cartdetails.Id && c.Productid== cartitem.Productid).FirstOrDefault();
-            if (cartitemdetails==null)
-            {
-                Cartitem crtitems = new Cartitem()
-                {
-                    Cartid = cartdetails.Id,
-                    Productid = cartitem.Productid,
-                    Quantity = cartitem.Quantity,
-                    Unitprice = cartitem.Unitprice,
-
-                };
+                await _context.Cartitems.AddAsync(citems);
+                await _context.SaveChangesAsync();
             }
             else
             {
-                cartitemdetails.Quantity += cartitem.Quantity;
-            }
-            await _context.SaveChangesAsync();
+                var cartitemdetails = _context.Cartitems.Where(c => c.Cartid == cartdetails1.Id && c.Productid == cartdetails.cartitems[0].Productid).FirstOrDefault();
+                if (cartitemdetails == null)
+                {
+                    Cartitem crtitems = new Cartitem()
+                    {
+                        Cartid = cartdetails1.Id,
+                        Productid = cartdetails.cartitems[0].Productid,
+                        Quantity = cartdetails.cartitems[0].Quantity,
+                        Unitprice = cartdetails.cartitems[0].Unitprice,
 
+                    };
+                    await _context.Cartitems.AddAsync(crtitems);
+                }
+                else
+                {
+                    cartitemdetails.Quantity += cartdetails.cartitems[0].Quantity;
+                }
+                await _context.SaveChangesAsync();
+            }
             return true;
         }
 
-        public async Task<CartdetailsVM> GetUserCart(long Userid)
-        {
-            var usercart = _context.Carts.Include(c => c.Cartitems).FirstOrDefault(c => c.Userid == Userid && c.Status == "Active");
+        public async Task<CartListVM> GetUserCart(long Userid)
+        {//&& c.Status == "Active"is active flag will be added
+            var usercart = _context.Carts.Include(c => c.Cartitems).Where(c => c.Userid == Userid).ToList();
             if (usercart == null) 
             {
 
             }
-            CartdetailsVM cartdetailsVM = new CartdetailsVM()
+            CartListVM cartdetailsVM = new CartListVM()
             {
-                carts = usercart,
-                cartitems=usercart.Cartitems.ToList(),
+                Cart = usercart.ToList()
+                
             };
 
             return cartdetailsVM;
         }
-        public async Task<bool> UpdateQuantityOfItem(long itemid)
+        public async Task<bool> UpdateQuantityOfItem(int itemid)
         {
             var cartitem = await _context.Cartitems.FindAsync(itemid);
             if (cartitem != null)
@@ -86,13 +93,23 @@ namespace E_commerce.Repository.CartRepository
             await _context.SaveChangesAsync();
             return true;
         }
-        public async Task<bool> RemoveItemFromCart(long itemid)
+        public async Task<bool> RemoveItemFromCart(int itemid)
         {
             var cartitem = await _context.Cartitems.FindAsync(itemid);
+            int? id = 0;
             if (cartitem != null)
             {
-               _context.Cartitems.Remove(cartitem);
+                 id = cartitem.Cartid;
+                _context.Cartitems.Remove(cartitem);
+                await _context.SaveChangesAsync();
             }
+            var cartitems = await _context.Cartitems.ToListAsync();
+            if (cartitems == null)
+            {
+                var cart= await _context.Carts.FindAsync(id);
+               // cart.Status=
+            }
+            var cartdetails = await _context.Cartitems.FindAsync(id);
             await _context.SaveChangesAsync();
             return true;
         }

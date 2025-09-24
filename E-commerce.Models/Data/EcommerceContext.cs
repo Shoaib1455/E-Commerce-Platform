@@ -16,6 +16,8 @@ public partial class EcommerceContext : DbContext
     {
     }
 
+    public virtual DbSet<Address> Addresses { get; set; }
+
     public virtual DbSet<Cart> Carts { get; set; }
 
     public virtual DbSet<Cartitem> Cartitems { get; set; }
@@ -36,6 +38,37 @@ public partial class EcommerceContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Address>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_id");
+
+            entity.ToTable("address");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasIdentityOptions(190L, null, null, null, null, null)
+                .HasColumnName("id");
+            entity.Property(e => e.City)
+                .HasMaxLength(60)
+                .HasColumnName("city");
+            entity.Property(e => e.Country)
+                .HasMaxLength(50)
+                .HasColumnName("country");
+            entity.Property(e => e.Isdefault).HasColumnName("isdefault");
+            entity.Property(e => e.Postalcode).HasColumnName("postalcode");
+            entity.Property(e => e.State)
+                .HasMaxLength(70)
+                .HasColumnName("state");
+            entity.Property(e => e.Street)
+                .HasMaxLength(150)
+                .HasColumnName("street");
+            entity.Property(e => e.Userid).HasColumnName("userid");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Addresses)
+                .HasForeignKey(d => d.Userid)
+                .HasConstraintName("fk_userid");
+        });
+
         modelBuilder.Entity<Cart>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("pk_cart");
@@ -46,6 +79,9 @@ public partial class EcommerceContext : DbContext
                 .UseIdentityAlwaysColumn()
                 .HasColumnName("id");
             entity.Property(e => e.Createdat).HasColumnName("createdat");
+            entity.Property(e => e.Isactive)
+                .HasDefaultValue(true)
+                .HasColumnName("isactive");
             entity.Property(e => e.Status)
                 .HasMaxLength(15)
                 .HasColumnName("status");

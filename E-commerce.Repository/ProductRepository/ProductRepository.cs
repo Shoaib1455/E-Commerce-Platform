@@ -4,7 +4,7 @@ using E_commerce.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -38,9 +38,11 @@ namespace E_commerce.Repository.ProductRepository
         }//problem in update
         public async Task<Product> UpdateProduct(ProductVM productdetails)
         {
-            var oldproduct = await _context.Products.FirstOrDefaultAsync();
+            var oldproduct = await _context.Products.AsNoTracking().Where(p=>p.Id== productdetails.Id).FirstOrDefaultAsync();
+            if (oldproduct == null) return null;
             Product product = new Product()
             {
+                Id= oldproduct.Id,
                 Name = productdetails.Name ?? oldproduct.Name,
                 Description = productdetails.Description ?? oldproduct.Description,
                 Price = (productdetails.Price != 0) ? productdetails.Price : oldproduct.Price,
