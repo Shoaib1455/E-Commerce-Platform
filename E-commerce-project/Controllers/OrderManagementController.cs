@@ -1,10 +1,13 @@
 ﻿using E_commerce.Models.Models;
 using E_commerce.Repository.OrderRepository;
+using E_commerce.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace E_commerce_project.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class OrderManagementController : Controller
     {
         private readonly IOrderRepository _orderrepository;
@@ -27,7 +30,7 @@ namespace E_commerce_project.Controllers
             return orders;
         }
         [HttpGet("details of single order")]
-        public async Task<Order> GetDetailsOfSingleOrder(int orderid)
+        public async Task<OrderDto> GetDetailsOfSingleOrder(int orderid)
         {
             var singleorder = await _orderrepository.GetDetailsOfSingleOrder(orderid);
             return singleorder;
