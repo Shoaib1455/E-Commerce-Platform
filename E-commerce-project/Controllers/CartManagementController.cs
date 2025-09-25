@@ -43,10 +43,10 @@ namespace E_commerce_project.Controllers
             var isremoved = await _cartRepository.RemoveItemFromCart(itemid);
             return isremoved;
         }
-        [HttpDelete("Remove Cart")]
+        [HttpDelete("Empty Cart")]
         public async Task<bool> RemoveCart(int cartid)
         {
-            var iscartremoved= await _cartRepository.RemoveCart(cartid);
+            var iscartremoved= await _cartRepository.EmptyCart(cartid);
             return iscartremoved;
         }
     }

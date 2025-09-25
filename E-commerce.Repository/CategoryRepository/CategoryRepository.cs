@@ -10,12 +10,12 @@ using System.Threading.Tasks;
 
 namespace E_commerce.Repository.CategoryRepository
 {
-    public class CategoryRepository
+    public class CategoryRepository:ICategoryRepository
     {
-        private readonly ICategoryRepository _categoryrepository;
+        
         private readonly EcommerceContext _context;
 
-        public CategoryRepository(ICategoryRepository categoryRepository, EcommerceContext context)
+        public CategoryRepository(EcommerceContext context)
         {
             
             _context = context;
@@ -35,7 +35,7 @@ namespace E_commerce.Repository.CategoryRepository
         }
         public async Task<Category> UpdateCategory(CategoryVM categorydetails)
         {
-            var oldcategory = await _context.Categories.FirstOrDefaultAsync();
+            var oldcategory = await _context.Categories.Where(c=>c.Id== categorydetails.Id).FirstOrDefaultAsync();
             Category category = new Category()
             {
                 Name = categorydetails.Name ?? oldcategory.Name,

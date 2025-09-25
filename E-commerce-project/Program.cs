@@ -1,6 +1,8 @@
 using E_commerce.Models;
 using E_commerce.Models.Data;
+using E_commerce.Repository.AddressRepository;
 using E_commerce.Repository.CartRepository;
+using E_commerce.Repository.CategoryRepository;
 using E_commerce.Repository.OrderRepository;
 using E_commerce.Repository.ProductRepository;
 using E_commerce.Repository.UserRepository;
@@ -22,6 +24,9 @@ builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -108,7 +113,7 @@ builder.Services.AddAuthentication(options =>
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-
+    app.UseDeveloperExceptionPage();
         app.UseRouting();
         app.UseAuthentication();
        

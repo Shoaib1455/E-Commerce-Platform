@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -33,37 +34,45 @@ namespace E_commerce.Repository.CartRepository
                 await _context.Carts.AddAsync(c);
                 await _context.SaveChangesAsync();
                 var newcartid = c.Id;
-                Cartitem citems = new Cartitem()
-                {
-                    Cartid = newcartid,
-                    Productid = cartdetails.cartitems[0].Productid,
-                    Quantity = cartdetails.cartitems[0].Quantity,
-                    Unitprice = cartdetails.cartitems[0].Unitprice,
 
-                };
-                await _context.Cartitems.AddAsync(citems);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                var cartitemdetails = _context.Cartitems.Where(c => c.Cartid == cartdetails1.Id && c.Productid == cartdetails.cartitems[0].Productid).FirstOrDefault();
-                if (cartitemdetails == null)
+                foreach (var item in cartdetails.cartitems)
                 {
-                    Cartitem crtitems = new Cartitem()
+                    Cartitem citems = new Cartitem()
                     {
-                        Cartid = cartdetails1.Id,
-                        Productid = cartdetails.cartitems[0].Productid,
-                        Quantity = cartdetails.cartitems[0].Quantity,
-                        Unitprice = cartdetails.cartitems[0].Unitprice,
+                        Cartid = newcartid,
+                        Productid = item.Productid,
+                        Quantity =  item.Quantity,
+                        Unitprice = item.Unitprice,
 
                     };
-                    await _context.Cartitems.AddAsync(crtitems);
+                    await _context.Cartitems.AddAsync(citems);
+                    await _context.SaveChangesAsync();
                 }
-                else
+             }
+            else
+            {
+                cartdetails1.Isactive= true;
+                foreach (var item in cartdetails.cartitems)
                 {
-                    cartitemdetails.Quantity += cartdetails.cartitems[0].Quantity;
+                    var cartitemdetails = _context.Cartitems.Where(c => c.Cartid == cartdetails1.Id && c.Productid == item.Productid).FirstOrDefault();
+                    if (cartitemdetails == null)
+                    {
+                        Cartitem crtitems = new Cartitem()
+                        {
+                            Cartid = cartdetails1.Id,
+                            Productid = item.Productid,
+                            Quantity =  item.Quantity,
+                            Unitprice = item.Unitprice,
+
+                        };
+                        await _context.Cartitems.AddAsync(crtitems);
+                    }
+                    else
+                    {
+                        cartitemdetails.Quantity += item.Quantity;
+                    }
+                    await _context.SaveChangesAsync();
                 }
-                await _context.SaveChangesAsync();
             }
             return true;
         }
@@ -103,17 +112,18 @@ namespace E_commerce.Repository.CartRepository
                 _context.Cartitems.Remove(cartitem);
                 await _context.SaveChangesAsync();
             }
-            var cartitems = await _context.Cartitems.ToListAsync();
-            if (cartitems == null)
+            
+             var cartitems = await _context.Cartitems.Where(c => c.Cartid == id).ToListAsync();
+            if (cartitems.Count == 0)
             {
                 var cart= await _context.Carts.FindAsync(id);
-               // cart.Status=
+                cart.Isactive = false;
+                await _context.SaveChangesAsync();
             }
-            var cartdetails = await _context.Cartitems.FindAsync(id);
-            await _context.SaveChangesAsync();
+
             return true;
         }
-        public async Task<bool> RemoveCart(int cartid)
+        public async Task<bool> EmptyCart(int cartid)
         {
             var cartitems = await _context.Cartitems.Where(c=>c.Cartid==cartid).ToListAsync();
             var cart=await _context.Carts.Where(c=> c.Id== cartid).FirstOrDefaultAsync();
@@ -122,7 +132,9 @@ namespace E_commerce.Repository.CartRepository
                 _context.Cartitems.RemoveRange(cartitems);
                 
             }
-            _context.Carts.Remove(cart);
+            cart.Isactive = false;
+
+            //_context.Carts.Remove(cart);
 
             await _context.SaveChangesAsync();
             return true;

@@ -14,6 +14,6 @@ namespace E_commerce.Repository.CartRepository
         public Task<CartListVM> GetUserCart(long Userid);
         public Task<bool> UpdateQuantityOfItem(int itemid);
         public Task<bool> RemoveItemFromCart(int itemid);
-        public Task<bool> RemoveCart(int cartid);
+        public Task<bool> EmptyCart(int cartid);
     }
 }
