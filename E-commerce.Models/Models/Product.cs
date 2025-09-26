@@ -21,7 +21,11 @@ public partial class Product
 
     public DateTime? Updatedat { get; set; }
 
+    public int? Categoryid { get; set; }
+
     public virtual ICollection<Cartitem> Cartitems { get; set; } = new List<Cartitem>();
+
+    public virtual Category? Category { get; set; }
 
     public virtual ICollection<Orderitem> Orderitems { get; set; } = new List<Orderitem>();
 }

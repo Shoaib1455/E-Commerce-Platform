@@ -28,6 +28,11 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    });
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -113,7 +118,7 @@ builder.Services.AddAuthentication(options =>
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-    app.UseDeveloperExceptionPage();
+        app.UseDeveloperExceptionPage();
         app.UseRouting();
         app.UseAuthentication();
        
