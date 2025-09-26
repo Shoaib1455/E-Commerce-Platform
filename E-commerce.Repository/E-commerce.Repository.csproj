@@ -18,7 +18,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AdminRepository\" />
     <Folder Include="PaymentRepository\" />
   </ItemGroup>
 

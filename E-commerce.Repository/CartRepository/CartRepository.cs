@@ -77,20 +77,28 @@ namespace E_commerce.Repository.CartRepository
             return true;
         }
 
-        public async Task<CartListVM> GetUserCart(long Userid)
-        {//&& c.Status == "Active"is active flag will be added
-            var usercart = _context.Carts.Include(c => c.Cartitems).Where(c => c.Userid == Userid).ToList();
+        public async Task<CartDto> GetUserCart(long Userid)
+        {
+            var usercart = await _context.Carts.Include(c => c.Cartitems).Where(c => c.Userid == Userid && c.Isactive==true).FirstOrDefaultAsync();
             if (usercart == null) 
             {
-
+                return new CartDto();
             }
-            CartListVM cartdetailsVM = new CartListVM()
+            CartDto cart = new CartDto()
             {
-                Cart = usercart.ToList()
-                
+                Userid= usercart.Userid,
+                Status= usercart.Status,
+                Isactive= usercart.Isactive,
+                Cartitems= usercart.Cartitems.Select(ci=>  new CartitemDto
+                {
+                    Cartid = ci.Cartid,
+                    Productid= ci.Productid,
+                    Quantity= ci.Quantity,
+                    Unitprice= ci.Unitprice,
+                }).ToList(),
             };
 
-            return cartdetailsVM;
+            return cart;
         }
         public async Task<bool> UpdateQuantityOfItem(int itemid)
         {
