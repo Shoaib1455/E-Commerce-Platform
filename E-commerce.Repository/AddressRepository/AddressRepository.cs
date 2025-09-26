@@ -38,17 +38,20 @@ namespace E_commerce.Repository.AddressRepository
         public async Task<Address> UpdateAddress(AddressVM address, int userid)
         {
             var oldaddress= await _context.Addresses.Where(a=> a.Id==address.Id && a.Userid==userid).FirstOrDefaultAsync();
+            if (oldaddress != null)
+            {
+                oldaddress.Street = (address.Street != oldaddress.Street) ? address.Street : oldaddress.Street;
+                oldaddress.City = (address.City != oldaddress.City) ? address.City : oldaddress.City;
+                oldaddress.State = (address.State != oldaddress.State) ? address.State : oldaddress.State;
+                oldaddress.Postalcode = (address.Postalcode != oldaddress.Postalcode) ? address.Postalcode : oldaddress.Postalcode;
+                oldaddress.Country = (address.Country != oldaddress.Country) ? address.Country : oldaddress.Country;
 
-            oldaddress.Street = (address.Street != oldaddress.Street) ? address.Street : oldaddress.Street;
-            oldaddress.City = (address.City != oldaddress.City) ? address.City : oldaddress.City;
-            oldaddress.State = (address.State != oldaddress.State) ? address.State : oldaddress.State;
-            oldaddress.Postalcode = (address.Postalcode != oldaddress.Postalcode) ? address.Postalcode : oldaddress.Postalcode;
-            oldaddress.Country = (address.Country != oldaddress.Country) ? address.Country : oldaddress.Country;
 
-            
-             _context.Addresses.Update(oldaddress);
-            await _context.SaveChangesAsync();
-            return oldaddress;
+                _context.Addresses.Update(oldaddress);
+                await _context.SaveChangesAsync();
+                return oldaddress;
+            }
+            return new Address();
 
         }
         public async Task<List<Address>> GetUserSavedAddresses(int userid)

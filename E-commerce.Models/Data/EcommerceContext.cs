@@ -149,6 +149,7 @@ public partial class EcommerceContext : DbContext
                 .UseIdentityAlwaysColumn()
                 .HasIdentityOptions(60L, null, null, null, null, null)
                 .HasColumnName("id");
+            entity.Property(e => e.Addressid).HasColumnName("addressid");
             entity.Property(e => e.Createdat).HasColumnName("createdat");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
@@ -156,6 +157,10 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.TotalAmount).HasColumnName("totalAmount");
             entity.Property(e => e.Updatedat).HasColumnName("updatedat");
             entity.Property(e => e.Userid).HasColumnName("userid");
+
+            entity.HasOne(d => d.Address).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.Addressid)
+                .HasConstraintName("fk-addressid");
         });
 
         modelBuilder.Entity<Orderitem>(entity =>
@@ -193,6 +198,7 @@ public partial class EcommerceContext : DbContext
                 .UseIdentityAlwaysColumn()
                 .HasIdentityOptions(150L, null, null, null, null, null)
                 .HasColumnName("id");
+            entity.Property(e => e.Categoryid).HasColumnName("categoryid");
             entity.Property(e => e.Createdat).HasColumnName("createdat");
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
@@ -206,6 +212,10 @@ public partial class EcommerceContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("sku");
             entity.Property(e => e.Updatedat).HasColumnName("updatedat");
+
+            entity.HasOne(d => d.Category).WithMany(p => p.Products)
+                .HasForeignKey(d => d.Categoryid)
+                .HasConstraintName("fk-categoryid");
         });
 
         modelBuilder.Entity<Usermanagement>(entity =>

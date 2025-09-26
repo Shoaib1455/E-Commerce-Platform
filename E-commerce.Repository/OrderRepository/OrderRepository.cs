@@ -22,20 +22,28 @@ namespace E_commerce.Repository.OrderRepository
         {
             var cart = await _context.Carts.Where(u => u.Userid == userid && u.Isactive==true).FirstOrDefaultAsync();
             var cartitems = await _context.Cartitems.Where(u => u.Cartid == cart.Id).ToListAsync();
+            var address=await _context.Addresses.Where(a=>a.Userid==userid && a.Isdefault==true ).FirstOrDefaultAsync();
             if (cart == null)
             {
                 return null;
+            }
+            if (address == null) {
+                throw new Exception("No default address found. Please add or select an address before checkout.");
             }
             Order order = new Order()
             {
                 Userid = userid,
                 TotalAmount = 0,
-                Status="pending"
+                Status="pending",
+                Addressid= address.Id 
             };
+            
             _context.Orders.Add(order);
             
+
             await _context.SaveChangesAsync();
-            var orders= _context.Orders.Where(o=>o.Userid==userid).FirstOrDefault();
+            var orderids = order.Id;
+            var orders= _context.Orders.Where(o=>o.Userid==userid && o.Id== orderids).FirstOrDefault();
             foreach (var item in cartitems)
             {
                 Orderitem orderitem = new Orderitem()
@@ -48,8 +56,8 @@ namespace E_commerce.Repository.OrderRepository
                 };
                 _context.Orderitems.Add(orderitem);
             }
-            // make the cart inactive as well
-            //as the orderitems are addded then here we will clear the cart 
+            cart.Isactive = false;
+            _context.Cartitems.RemoveRange(cartitems);
             await _context.SaveChangesAsync();
             if (orders != null)
             {
