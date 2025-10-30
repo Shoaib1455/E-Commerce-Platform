@@ -29,6 +29,7 @@ namespace E_commerce.Repository.ProductRepository
                 Sku = productdetails.Sku,
                 Isactive = productdetails.Isactive,
                 Categoryid=productdetails.Categoryid,
+                ImageUrl=productdetails.ImageUrl,
 
             };
             _context.Products.Add(product);

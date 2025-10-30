@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Security.Policy;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +29,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
 builder.Services.AddScoped<TokenService>();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -89,13 +91,25 @@ builder.Services.AddAuthentication(options =>
 
             };
         });
-    
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+string[] urls = builder.Configuration.GetSection("AllowedEndPoints:Urls").Get<string[]>().ToArray();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllHeaders",
+          builder =>
+          {
+              builder.AllowAnyOrigin()
+                     .AllowAnyHeader()
+                     .AllowAnyMethod();
+          });
+});
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<EcommerceContext>(options =>
         options.UseNpgsql(connectionString));
     try
     {
-        var app = builder.Build();
+    
+    var app = builder.Build();
 
         Console.WriteLine("App built Successfully");
 
@@ -120,10 +134,14 @@ builder.Services.AddAuthentication(options =>
         app.UseStaticFiles();
         app.UseDeveloperExceptionPage();
         app.UseRouting();
-        app.UseAuthentication();
+        app.UseCors("AllowAllHeaders"); // Specify allowed origins explicitly
+    
+    app.UseAuthentication();
        
-        app.UseAuthorization();
-        app.UseMiddleware<TokenValidationMiddleware>();
+     app.UseAuthorization();
+     app.UseMiddleware<TokenValidationMiddleware>();
+   
+
 
     app.MapControllerRoute(
             name: "default",

@@ -8,5 +8,6 @@ namespace E_commerce.Repository.Admin.AdminOrdersRepository
 {
     public interface IAdminOrdersRepository
     {
+
     }
 }

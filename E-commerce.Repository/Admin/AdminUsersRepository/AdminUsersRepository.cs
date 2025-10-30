@@ -13,7 +13,8 @@ namespace E_commerce.Repository.Admin.AdminUsersRepository
     public class AdminUsersRepository
     {
        private readonly EcommerceContext _context;
-        public AdminUsersRepository() {
+        public AdminUsersRepository(EcommerceContext context) {
+             _context=context;
         }
         public async Task <List<UserDetailsVM>> ListAllUsers(string role)
         {
@@ -28,5 +29,9 @@ namespace E_commerce.Repository.Admin.AdminUsersRepository
            
             return userdetails;
         }
+        public async Task <UserDetailsVM> GetUserDetails(int id)
+        {
+            return new UserDetailsVM();
+        } 
     }
 }

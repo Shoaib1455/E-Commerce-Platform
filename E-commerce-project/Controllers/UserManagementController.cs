@@ -9,11 +9,10 @@ using System.Security.Claims;
 namespace E_commerce_project.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class UserManagementController : Controller
     {
         private readonly IUserRepository _userRepository;
-        
 
         public UserManagementController(IUserRepository userRepository )
         {
@@ -33,14 +32,14 @@ namespace E_commerce_project.Controllers
 
             return Ok("Registration Successful");
         }
-        [HttpPost("login")]
+        [HttpPost]
         public async Task<IActionResult> Login(UserVM user) { 
             var token= await _userRepository.Login(user);
             if (token == null) {
                 return BadRequest("Invalid Credentials");
             }
         
-            return Ok(token);
+            return Ok(new { token });
         }
         [HttpPost("Logout")]
         public async Task<IActionResult> Logout(string token)
@@ -52,17 +51,19 @@ namespace E_commerce_project.Controllers
             string validtoken=await _userRepository.Logout(token);
             return Ok("Logout Successful");
         }
-        [HttpGet("GetUser")]
-        public async Task<PayloadVM> GetUserProfile(string emails,string token)
+        [HttpGet]
+        public async Task<PayloadVM> GetsUserProfile()
         {
             //PayloadVM payload = new PayloadVM() { Email=null,Name=null,Role=null};
             //if (!TokenValidator.isValidToken(Request))
             //{
             //    return payload;
             //}
+            var token = HttpContext.Request.Headers["Authorization"]
+                  .FirstOrDefault()?.Split(" ").Last();
             PayloadVM payload = new PayloadVM();
             var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            payload=await _userRepository.GetUserProfile(emails,token);
+            payload=await _userRepository.GetUserProfile(email,token);
 
             return payload;
         }

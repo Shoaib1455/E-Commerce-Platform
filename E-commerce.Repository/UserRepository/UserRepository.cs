@@ -134,5 +134,59 @@ namespace E_commerce.Repository.UserRepository
             await _context.SaveChangesAsync();
             return true;
         }
+        public async Task<List<PayloadVM>> GetAllUsers()
+        {
+            var userdetails = await _context.Usermanagements.ToListAsync();
+            if (userdetails != null)
+            {
+
+                List<PayloadVM> user = userdetails.Select(u=> new PayloadVM
+                {
+                    Name = u.Name,
+                    Email = u.Email,
+                    Role = u.Role
+                }).ToList();
+                
+                return user;
+
+            }
+            return new List<PayloadVM>();
+        }
+
+        public async Task<List<PayloadVM>> GetUserById()
+        {
+            var userdetails = await _context.Usermanagements.ToListAsync();
+            if (userdetails != null)
+            {
+
+                List<PayloadVM> user = userdetails.Select(u => new PayloadVM
+                {
+                    Name = u.Name,
+                    Email = u.Email,
+                    Role = u.Role
+                }).ToList();
+
+                return user;
+
+            }
+            return new List<PayloadVM>();
+        }
+        public async Task<PayloadVM> GetUserDetails(string email)
+        {
+            var userdetails = await _context.Usermanagements.Where(u => u.Email == email).FirstOrDefaultAsync();
+            if (userdetails != null)
+            {
+                PayloadVM user = new PayloadVM
+                {
+                    Name = userdetails.Name,
+                    Email = userdetails.Email,
+                    Role = userdetails.Role,
+                };
+                return user;
+
+            }
+            return null;
+        }
+
     }
 } 

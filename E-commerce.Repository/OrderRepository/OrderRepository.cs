@@ -126,6 +126,13 @@ namespace E_commerce.Repository.OrderRepository
             return order;
         }
 
+        public async Task<Order> GetOrderById(long orderid)
+        {
+            var order =await _context.Orders.Where(o=> o.Id==orderid).FirstOrDefaultAsync();
+
+            return order; 
+        }
+
 
     }
 }

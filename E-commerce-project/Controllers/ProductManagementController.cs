@@ -33,7 +33,7 @@ namespace E_commerce_project.Controllers
             var getproduct = await _productRepository.GetProductById(pid);
             return getproduct;
         }
-        [HttpGet("getallproducts")]
+        [HttpGet]
         public async Task<List<Product>> GetAllProducts()
         {
             var productslist = await _productRepository.GetAllProducts();

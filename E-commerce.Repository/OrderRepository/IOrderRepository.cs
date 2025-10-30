@@ -16,5 +16,6 @@ namespace E_commerce.Repository.OrderRepository
         public Task<Order> CancelOrder(int orderid);
         public Task<List<Order>> GetAllOrders();
         public Task<Order> UpdateOrderStatus(int orderid, string status);
+        public Task<Order> GetOrderById(long orderid);
     }
 }
