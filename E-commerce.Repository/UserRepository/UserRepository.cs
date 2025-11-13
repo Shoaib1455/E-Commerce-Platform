@@ -25,10 +25,10 @@ namespace E_commerce.Repository.UserRepository
             _tokenservice = tokenservice;
         }
 
-        public async Task<bool> Signup(UserSignInVM userdetails)
+        public async Task<bool> Signup(UserSignInVM userdetails ,string role)
         {
             var existing = await _context.Usermanagements.Where(s => s.Email == userdetails.Email).FirstOrDefaultAsync();
-            if (existing != null)
+            if (existing != null || userdetails==null)
             {
                 return false;
             }
@@ -36,8 +36,8 @@ namespace E_commerce.Repository.UserRepository
             {
 
                 Email = userdetails.Email,
-                Password = BCrypt.Net.BCrypt.HashPassword(userdetails.PasswordN),
-                Role = userdetails.Role,
+                Password = BCrypt.Net.BCrypt.HashPassword(userdetails.Password),
+                Role = role,
                 Name = userdetails.Name,
 
             };
@@ -48,7 +48,7 @@ namespace E_commerce.Repository.UserRepository
         public async Task<string> Login(UserVM user)
         {
             var existingUser = await _context.Usermanagements.Where(s => s.Email == user.Email).FirstOrDefaultAsync();
-            if (existingUser == null || !BCrypt.Net.BCrypt.Verify(user.PasswordN, existingUser.Password))
+            if (existingUser == null || !BCrypt.Net.BCrypt.Verify(user.Password, existingUser.Password))
             {
                 return null;
             }

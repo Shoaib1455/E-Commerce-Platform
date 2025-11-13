@@ -23,6 +23,8 @@ public partial class Product
 
     public int? Categoryid { get; set; }
 
+    public string? Imageurl { get; set; }
+
     public virtual ICollection<Cartitem> Cartitems { get; set; } = new List<Cartitem>();
 
     public virtual Category? Category { get; set; }

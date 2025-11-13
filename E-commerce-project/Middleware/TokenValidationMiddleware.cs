@@ -17,7 +17,7 @@ namespace E_commerce_project.Middleware
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(' ').Last();
 
             var ignoredPaths = new[] { "/api/UserManagement/Login", "/api/UserManagement/Register", "/api/UserManagement/forgot-password", "/api/UserManagement/reset-password","/swagger",
-        "/swagger/index.html","/api/ProductsManagement/GetAllProducts"};
+        "/swagger/index.html","/api/ProductManagement/GetAllProducts","/api/AdminUsers/CreateUser","/api/SellerUsers/CreateUser"};
             if (ignoredPaths.Contains(context.Request.Path.Value, StringComparer.OrdinalIgnoreCase))
             {
                 await _next(context); // Skip middleware logic

@@ -23,7 +23,7 @@ namespace E_commerce_project.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> CreateUser(UserSignInVM userdetails)
         {
-           var result = await _userRepository.Signup(userdetails);
+           var result = await _userRepository.Signup(userdetails,"customer");
             if (!result) 
             {
                 

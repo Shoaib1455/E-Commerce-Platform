@@ -13,7 +13,7 @@ namespace E_commerce_project.Controllers.Admin
         {
             _productRepository = productRepository;
         }
-        public async Task<List<Product>> GetAllProducts()
+        public async Task<List<ProductVM>> GetAllProducts()
         {
             var products = await _productRepository.GetAllProducts();
             return products;

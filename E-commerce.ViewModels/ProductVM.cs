@@ -19,8 +19,8 @@ namespace E_commerce.ViewModels
         public string? Sku { get; set; }
 
         public bool? Isactive { get; set; }
-        public string ImageUrl {  get; set; }
-        public int Categoryid { get; set; }
+        public string ImageUrl { get; set; } = null;
+        public string CategoryName { get; set; } = null!;
         public DateTime? Createdat { get; set; }
 
         public DateTime? Updatedat { get; set; }

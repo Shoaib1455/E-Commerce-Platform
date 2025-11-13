@@ -10,6 +10,7 @@ using E_commerce.Services;
 using E_commerce_project.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Policy;
@@ -27,6 +28,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+
+//builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<TokenService>();
 
@@ -129,18 +133,28 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                Path.Combine(Directory.GetCurrentDirectory(), "Media")
+                 ),
+                RequestPath = "/Media"
+            });
 
-        app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseDeveloperExceptionPage();
         app.UseRouting();
         app.UseCors("AllowAllHeaders"); // Specify allowed origins explicitly
     
-    app.UseAuthentication();
+        app.UseAuthentication();
        
-     app.UseAuthorization();
-     app.UseMiddleware<TokenValidationMiddleware>();
-   
+        app.UseAuthorization();
+    app.UseWhen(
+        context => !context.Request.Path.StartsWithSegments("/Media"),
+        appBuilder => appBuilder.UseMiddleware<TokenValidationMiddleware>()
+);
+
 
 
     app.MapControllerRoute(
