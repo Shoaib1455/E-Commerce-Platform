@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace E_commerce_project.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/orders")]
     public class OrderManagementController : Controller
     {
         private readonly IOrderRepository _orderrepository;

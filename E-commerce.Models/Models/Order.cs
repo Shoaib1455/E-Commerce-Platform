@@ -22,4 +22,6 @@ public partial class Order
     public virtual Address? Address { get; set; }
 
     public virtual ICollection<Orderitem> Orderitems { get; set; } = new List<Orderitem>();
+
+    public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 }

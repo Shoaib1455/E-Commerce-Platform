@@ -6,33 +6,36 @@ using Microsoft.AspNetCore.Mvc;
 namespace E_commerce_project.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/categories")]
     public class CategoryManagementController : Controller
     {
-       private readonly ICategoryRepository _categoryrepository;
-       public CategoryManagementController(ICategoryRepository categoryRepository) {
+        private readonly ICategoryRepository _categoryrepository;
+        public CategoryManagementController(ICategoryRepository categoryRepository) {
             _categoryrepository = categoryRepository;
         }
-        [HttpPost("AddCategory")]
+        [HttpPost]
         public async Task<Category> AddCategory(CategoryVM category)
         {
             var productcategory = await _categoryrepository.AddCategory(category);
-            return productcategory; 
+            return productcategory;
         }
-        [HttpPut("UpdateCategory")]
-        public async Task<Category> UpdateCategory(CategoryVM category)
+        [HttpPut("{id}")]
+        public async Task<Category> UpdateCategory(int id, CategoryVM category)
         {
-            var updatedcategory = await _categoryrepository.UpdateCategory(category);
+            if (id != category.Id)
+                throw new ArgumentException("ID mismatch");
+
+            var updatedcategory = await _categoryrepository.UpdateCategory(id, category);
             return updatedcategory;
         }
-        [HttpGet("CategoryById")]
+        [HttpGet("{id}")]
         public async Task<Category> GetCategoryById(int categoryid)
         {
             var getcategory = await _categoryrepository.GetCategoryById(categoryid);
             return getcategory;
         }
-        [HttpGet("AllCategories")]
-        public async Task <List<Category>> GetAllCategories(int categoryid)
+        [HttpGet]
+        public async Task <List<Category>> GetAllCategories()
         {
             var allcategories = await _categoryrepository.GetAllCategory();
             return allcategories;

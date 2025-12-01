@@ -1,5 +1,7 @@
 ﻿using E_commerce.Models.Data;
 using E_commerce.Models.Models;
+using System;
+using System.IO;
 
 namespace E_commerce_project.Middleware
 {
@@ -15,10 +17,12 @@ namespace E_commerce_project.Middleware
         public async Task InvokeAsync(HttpContext context)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(' ').Last();
+            
 
             var ignoredPaths = new[] { "/api/UserManagement/Login", "/api/UserManagement/Register", "/api/UserManagement/forgot-password", "/api/UserManagement/reset-password","/swagger",
-        "/swagger/index.html","/api/ProductManagement/GetAllProducts","/api/AdminUsers/CreateUser","/api/SellerUsers/CreateUser"};
-            if (ignoredPaths.Contains(context.Request.Path.Value, StringComparer.OrdinalIgnoreCase))
+        "/swagger/index.html","/api/ProductManagement/GetAllProducts","/api/AdminUsers/CreateUser","/api/SellerUsers/CreateUser","/api/webhooks/payment","/api/products/{id}"};
+            var path = context.Request.Path.Value;
+            if (ignoredPaths.Contains(context.Request.Path.Value, StringComparer.OrdinalIgnoreCase)|| path.StartsWith("/api/products", StringComparison.OrdinalIgnoreCase))
             {
                 await _next(context); // Skip middleware logic
                 return;

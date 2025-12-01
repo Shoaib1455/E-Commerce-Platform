@@ -18,7 +18,7 @@ namespace E_commerce_project.Controllers.Admin
             var products = await _productRepository.GetAllProducts();
             return products;
         }
-        public async Task<Product> GetProductById(long productid)
+        public async Task<ProductVM> GetProductById(int productid)
         {
             var product = await _productRepository.GetProductById(productid);
             return product;

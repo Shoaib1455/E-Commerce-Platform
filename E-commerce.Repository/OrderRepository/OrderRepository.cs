@@ -20,13 +20,14 @@ namespace E_commerce.Repository.OrderRepository
         }
         public async Task<Order> Checkout(int userid)
         {
-            var cart = await _context.Carts.Where(u => u.Userid == userid && u.Isactive==true).FirstOrDefaultAsync();
-            var cartitems = await _context.Cartitems.Where(u => u.Cartid == cart.Id).ToListAsync();
-            var address=await _context.Addresses.Where(a=>a.Userid==userid && a.Isdefault==true ).FirstOrDefaultAsync();
-            if (cart == null)
-            {
-                return null;
-            }
+            //var cart = await _context.Carts.Where(u => u.Userid == userid && u.Isactive==true).FirstOrDefaultAsync();
+            //var cartitems = await _context.Cartitems.Where(u => u.Cartid == cart.Id).ToListAsync();
+            //
+            //if (cart == null)
+            //{
+            //    return null;
+            //}
+            var address = await _context.Addresses.Where(a => a.Userid == userid && a.Isdefault == true).FirstOrDefaultAsync();
             if (address == null) {
                 throw new Exception("No default address found. Please add or select an address before checkout.");
             }
@@ -56,8 +57,8 @@ namespace E_commerce.Repository.OrderRepository
                 };
                 _context.Orderitems.Add(orderitem);
             }
-            cart.Isactive = false;
-            _context.Cartitems.RemoveRange(cartitems);
+            //cart.Isactive = false;
+            //_context.Cartitems.RemoveRange(cartitems);
             await _context.SaveChangesAsync();
             if (orders != null)
             {

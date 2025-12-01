@@ -11,16 +11,13 @@
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.4" />
+    <PackageReference Include="Stripe.net" Version="50.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\E-commerce.Models\E-commerce.Models.csproj" />
     <ProjectReference Include="..\E-commerce.Services\E-commerce.Services.csproj" />
     <ProjectReference Include="..\E-commerce.ViewModels\E-commerce.ViewModels.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="PaymentRepository\" />
   </ItemGroup>
 
 </Project>

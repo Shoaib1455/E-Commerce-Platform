@@ -4,6 +4,7 @@ using E_commerce.Repository.AddressRepository;
 using E_commerce.Repository.CartRepository;
 using E_commerce.Repository.CategoryRepository;
 using E_commerce.Repository.OrderRepository;
+using E_commerce.Repository.PaymentRepository;
 using E_commerce.Repository.ProductRepository;
 using E_commerce.Repository.UserRepository;
 using E_commerce.Services;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Stripe;
 using System.Security.Policy;
 using System.Text;
 
@@ -28,11 +30,13 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+
 
 //builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<E_commerce.Services.TokenService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -106,7 +110,8 @@ builder.Services.AddCors(options =>
                      .AllowAnyMethod();
           });
 });
-
+var stripeSecretKey = builder.Configuration["Stripe:SecretKey"];
+StripeConfiguration.ApiKey = stripeSecretKey;
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<EcommerceContext>(options =>
         options.UseNpgsql(connectionString));
