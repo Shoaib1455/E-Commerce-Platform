@@ -15,19 +15,21 @@ namespace E_commerce_project.Controllers
     public class PaymentController : Controller
     {
         private readonly IPaymentRepository _paymentRepository;
-        public PaymentController(IPaymentRepository paymentRepository)
+        private readonly IConfiguration _config;
+        public PaymentController(IPaymentRepository paymentRepository, IConfiguration config)
         {
             _paymentRepository = paymentRepository;
+            _config = config;
         }
         [HttpPost("payment")]
         [AllowAnonymous]
-        public async Task<IActionResult> PaymentWebhook()
+        public async Task<Payment> PaymentWebhook()
         {
             Request.EnableBuffering();
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
 
             var signatureHeader = Request.Headers["Stripe-Signature"];
-            var webhookSecret = "whsec_Gt8OnKXuW9lsKZm9Z5MVd26VVMxT459R"; 
+            var webhookSecret = _config["Stripe:WebhookSecret"];//"whsec_Gt8OnKXuW9lsKZm9Z5MVd26VVMxT459R"; 
 
             Event stripeEvent; 
 
@@ -42,11 +44,11 @@ namespace E_commerce_project.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine("⚠️ Webhook signature verification FAILED: " + ex.Message);
-                return BadRequest("Signature verification failed");
+                return new Payment();
             }
 
             Console.WriteLine("📥 Webhook received: " + stripeEvent.Type);
-            await _paymentRepository.ProcessPaymentWebhookAsync(stripeEvent);
+            return await _paymentRepository.ProcessPaymentWebhookAsync(stripeEvent);
             //try
             //{
             //    switch (stripeEvent.Type)
@@ -115,9 +117,35 @@ namespace E_commerce_project.Controllers
                 Console.WriteLine(ex.Message);
                 return BadRequest();
             }*/
-            return Ok();
+            //return Ok();
         }
 
-       // public async Task<IActionResult> PaymentDetails(Payment)
+        // public async Task<IActionResult> PaymentDetails(Payment)
+        [HttpPost("createpaymentintent")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CreatePaymentIntent([FromBody] CreatePaymentIntentDto dto)
+        {
+            //StripeConfiguration.ApiKey = "sk_test_51SXHeBINeRcPQQXNTL6LEkDIKmdZ9FvxgzJPf2ONX5Xy9M9xqJBLE1hjYpJQk3K5leTkqOf2lncZB0HgK4mX1Res00THdgn8kC"; // your secret key
+            StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = dto.Amount, // in cents
+                Currency = "usd",
+                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                {
+                    Enabled = true
+                },
+                Metadata = new Dictionary<string, string>
+    {
+        { "orderId", dto.OrderId.ToString() }  // attach your order ID here
+    }
+            };
+
+            var service = new PaymentIntentService();
+            var intent = await service.CreateAsync(options);
+
+            return Ok(new { clientSecret = intent.ClientSecret });
+        }
+
     }
 }

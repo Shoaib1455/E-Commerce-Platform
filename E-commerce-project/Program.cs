@@ -20,6 +20,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5007); // HTTP
+    options.ListenAnyIP(7039, listenOptions => listenOptions.UseHttps()); // HTTPS
+});
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
@@ -147,7 +152,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
             });
 
     app.UseHttpsRedirection();
-        app.UseStaticFiles();
+     
         app.UseDeveloperExceptionPage();
         app.UseRouting();
         app.UseCors("AllowAllHeaders"); // Specify allowed origins explicitly
