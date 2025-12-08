@@ -203,6 +203,9 @@ public partial class EcommerceContext : DbContext
             entity.Property(e => e.Description)
                 .HasMaxLength(300)
                 .HasColumnName("description");
+            entity.Property(e => e.Imageurl)
+                .HasMaxLength(300)
+                .HasColumnName("imageurl");
             entity.Property(e => e.Isactive).HasColumnName("isactive");
             entity.Property(e => e.Name)
                 .HasMaxLength(50)

@@ -6,8 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce_project.Controllers
 {
+    
+    [Route("api/[controller]/[action]")]
     [ApiController]
-    [Route("api/[controller]")]
     public class ProductManagementController : Controller
     {
         private readonly IProductRepository _productRepository;
@@ -15,9 +16,10 @@ namespace E_commerce_project.Controllers
         {
             _productRepository = productRepository;
         }
-        [HttpPost("addproduct")]
+        [HttpPost]
         public async Task<Product> AddProduct(ProductVM product)
         {
+            
             var addedproduct = await _productRepository.AddProduct(product);
             return addedproduct;
         }
@@ -33,8 +35,8 @@ namespace E_commerce_project.Controllers
             var getproduct = await _productRepository.GetProductById(pid);
             return getproduct;
         }
-        [HttpGet("getallproducts")]
-        public async Task<List<Product>> GetAllProducts()
+        [HttpGet]
+        public async Task<List<ProductVM>> GetAllProducts()
         {
             var productslist = await _productRepository.GetAllProducts();
             return productslist;

@@ -23,6 +23,6 @@ namespace E_commerce.ViewModels
 
         public virtual ICollection<CartitemDto> Cartitems { get; set; } = new List<CartitemDto>();
 
-        public virtual Usermanagement? User { get; set; }
+        
     }
 }

@@ -30,7 +30,7 @@ namespace E_commerce_project.Controllers
             return isproductadded;
         }
         [HttpGet("User cart")]
-        public async Task<CartListVM> GetUsersCart(long userid)
+        public async Task<CartDto> GetUsersCart(long userid)
         {
             var usercart = await _cartRepository.GetUserCart(userid);
             return usercart;

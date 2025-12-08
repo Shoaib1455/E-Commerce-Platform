@@ -14,6 +14,6 @@ namespace E_commerce.Repository.ProductRepository
         public  Task<Product> UpdateProduct(ProductVM product);
         public  Task<bool> DeleteProduct(long id);
         public  Task<Product> GetProductById(long productId);
-        public Task<List<Product>> GetAllProducts();
+        public Task<List<ProductVM>> GetAllProducts();
     }
 }

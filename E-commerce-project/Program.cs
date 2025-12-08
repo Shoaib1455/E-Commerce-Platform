@@ -10,8 +10,10 @@ using E_commerce.Services;
 using E_commerce_project.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Security.Policy;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,7 +29,11 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
+//builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<TokenService>();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -89,13 +95,25 @@ builder.Services.AddAuthentication(options =>
 
             };
         });
-    
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+string[] urls = builder.Configuration.GetSection("AllowedEndPoints:Urls").Get<string[]>().ToArray();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllHeaders",
+          builder =>
+          {
+              builder.AllowAnyOrigin()
+                     .AllowAnyHeader()
+                     .AllowAnyMethod();
+          });
+});
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<EcommerceContext>(options =>
         options.UseNpgsql(connectionString));
     try
     {
-        var app = builder.Build();
+    
+    var app = builder.Build();
 
         Console.WriteLine("App built Successfully");
 
@@ -115,15 +133,29 @@ builder.Services.AddAuthentication(options =>
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                Path.Combine(Directory.GetCurrentDirectory(), "Media")
+                 ),
+                RequestPath = "/Media"
+            });
 
-        app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseDeveloperExceptionPage();
         app.UseRouting();
+        app.UseCors("AllowAllHeaders"); // Specify allowed origins explicitly
+    
         app.UseAuthentication();
        
         app.UseAuthorization();
-        app.UseMiddleware<TokenValidationMiddleware>();
+    app.UseWhen(
+        context => !context.Request.Path.StartsWithSegments("/Media"),
+        appBuilder => appBuilder.UseMiddleware<TokenValidationMiddleware>()
+);
+
+
 
     app.MapControllerRoute(
             name: "default",
