@@ -40,6 +40,7 @@ appsettings*.json
 *.pfx
 stripe-keys.json
 stripe-secret.txt
-
+#env
+.env
 # Local secrets folder (if any)
 Secrets/
