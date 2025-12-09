@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using E_commerce.Models.Models;
+using Microsoft.Extensions.Logging;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace E_commerce.Repository.PaymentRepository
 {
     public interface IPaymentRepository
     {
-        public Task ProcessPaymentEvent(Event stripeEvent );
-        public Task ProcessPaymentWebhookAsync(Event stripeEvent);
+        //public Task ProcessPaymentEvent(Event stripeEvent );
+        public Task<Payment> ProcessPaymentWebhookAsync(Event stripeEvent);
     }
 }

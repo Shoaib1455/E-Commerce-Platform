@@ -14,6 +14,8 @@ namespace E_commerce.ViewModels
         public int? Userid { get; set; }
 
         public int? TotalAmount { get; set; }
+        public int ShippingFee {  get; set; }
+        public string PaymentMethod {  get; set; }
 
         public DateTime? Createdat { get; set; }
 

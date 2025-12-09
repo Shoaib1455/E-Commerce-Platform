@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 
 namespace E_commerce.Repository.PaymentRepository
 {
-   
-
     public class PaymentRepository:IPaymentRepository
     {
         private readonly EcommerceContext _context;
@@ -54,101 +52,102 @@ namespace E_commerce.Repository.PaymentRepository
         //        Console.WriteLine("Unhandled event type: " + stripeEvent.Type);
         //    }
         //}
-        public async Task ProcessPaymentEvent(Event stripeEvent)
-        {
-            if (stripeEvent.Type == "checkout.session.completed")
-            {
-                var session = stripeEvent.Data.Object as Stripe.Checkout.Session;
-                var paymentIntentId = session.PaymentIntentId;
+        //public async Task ProcessPaymentEvent(Event stripeEvent)
+        //{
+        //    if (stripeEvent.Type == "checkout.session.completed")
+        //    {
+        //        var session = stripeEvent.Data.Object as Stripe.Checkout.Session;
+        //        var paymentIntentId = session.PaymentIntentId;
 
-                // Retrieve the payment intent to confirm status and get amount
-                var service = new PaymentIntentService();
-                var paymentIntent = service.Get(paymentIntentId);
+        //        // Retrieve the payment intent to confirm status and get amount
+        //        var service = new PaymentIntentService();
+        //        var paymentIntent = service.Get(paymentIntentId);
 
-                if (paymentIntent.Status == "succeeded")
-                {
-                    var orderId = paymentIntent.Metadata.ContainsKey("OrderId")
-                        ? paymentIntent.Metadata["OrderId"]
-                        : null;
+        //        if (paymentIntent.Status == "succeeded")
+        //        {
+        //            var orderId = paymentIntent.Metadata.ContainsKey("orderId")
+        //                ? paymentIntent.Metadata["orderId"]
+        //                : null;
 
-                    if (orderId != null)
-                    {
-                        // Save transaction info in Payment table
-                        //var payment = new Payment
-                        //{
-                        //    OrderId = int.Parse(orderId),
-                        //    Transactionid = (int)paymentIntentId,
-                        //    Amount = paymentIntent.AmountReceived / 100m, // Stripe amount in cents
-                        //    Status = paymentIntent.Status,
-                        //    CreatedAt = DateTime.UtcNow
-                        //};
+        //            if (orderId != null)
+        //            {
+        //                // Save transaction info in Payment table
+        //                //var payment = new Payment
+        //                //{
+        //                //    OrderId = int.Parse(orderId),
+        //                //    Transactionid = (int)paymentIntentId,
+        //                //    Amount = paymentIntent.AmountReceived / 100m, // Stripe amount in cents
+        //                //    Status = paymentIntent.Status,
+        //                //    CreatedAt = DateTime.UtcNow
+        //                //};
 
-                        //_context.Payments.Add(payment);
+        //                //_context.Payments.Add(payment);
 
-                        // Mark order as paid
-                        var order = _context.Orders.FirstOrDefault(o => o.Id == int.Parse(orderId));
-                        if (order != null)
-                        {
-                            order.Status = "Paid";
-                        }
+        //                // Mark order as paid
+        //                var order = _context.Orders.FirstOrDefault(o => o.Id == int.Parse(orderId));
+        //                if (order != null)
+        //                {
+        //                    order.Status = "Paid";
+        //                }
 
-                        await _context.SaveChangesAsync();
+        //                await _context.SaveChangesAsync();
 
-                        Console.WriteLine("Order marked as paid: " + orderId);
-                    }
-                }
-            }
-            else if (stripeEvent.Type == "payment_intent.succeeded")
-            {
-                var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+        //                Console.WriteLine("Order marked as paid: " + orderId);
+        //            }
+        //        }
+        //    }
+        //    else if (stripeEvent.Type == "payment_intent.succeeded")
+        //    {
+        //        var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
 
-                var orderId = paymentIntent.Metadata.ContainsKey("OrderId")
-                    ? paymentIntent.Metadata["OrderId"]
-                    : null;
+        //        var orderId = paymentIntent.Metadata.ContainsKey("orderId")
+        //            ? paymentIntent.Metadata["orderId"]
+        //            : null;
 
-                if (orderId != null)
-                {
-                    var payment = new Payment
-                    {
-                        Transactionid =  paymentIntent.Id,
-                        Amount = paymentIntent.AmountReceived,
-                        Status = paymentIntent.Status,
-                        Orderid = int.Parse(orderId),
-                    };
+        //        if (orderId != null)
+        //        {
+        //            var payment = new Payment
+        //            {
+        //                Transactionid =  paymentIntent.Id,
+        //                Amount = paymentIntent.AmountReceived,
+        //                Status = paymentIntent.Status,
+        //                Orderid = int.Parse(orderId),
+        //            };
 
-                    _context.Payments.Add(payment);
+        //            _context.Payments.Add(payment);
 
-                    var order = _context.Orders.FirstOrDefault(o => o.Id == int.Parse(orderId));
-                    if (order != null)
-                    {
-                        order.Status = "Paid";
-                    }
+        //            var order = _context.Orders.FirstOrDefault(o => o.Id == int.Parse(orderId));
+        //            if (order != null)
+        //            {
+        //                order.Status = "Paid";
+        //            }
 
-                    await _context.SaveChangesAsync();
-                    Console.WriteLine("Order marked as paid: " + orderId);
-                }
-            }
-            else
-            {
-                Console.WriteLine("Unhandled event type: " + stripeEvent.Type);
-            }
-        }
-        public async Task ProcessPaymentWebhookAsync(Event stripeEvent)
+        //            await _context.SaveChangesAsync();
+        //            Console.WriteLine("Order marked as paid: " + orderId);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        Console.WriteLine("Unhandled event type: " + stripeEvent.Type);
+        //    }
+        //}
+        public async Task<Payment> ProcessPaymentWebhookAsync(Event stripeEvent)
         {
             try
             {
                 switch (stripeEvent.Type)
                 {
                     case "payment_intent.succeeded":
-                        await HandleSuccessfulPayment(stripeEvent);
+                        return await HandleSuccessfulPayment(stripeEvent);
                         break;
 
                     case "payment_intent.payment_failed":
-                        await HandleFailedPayment(stripeEvent);
+                        return await HandleFailedPayment(stripeEvent);
                         break;
 
                     default:
                         Console.WriteLine("Unhandled event: " + stripeEvent.Type);
+                        return new Payment();
                         break;
                 }
             }
@@ -158,34 +157,35 @@ namespace E_commerce.Repository.PaymentRepository
                 throw;
             }
         }
-        private async Task HandleSuccessfulPayment(Event stripeEvent)
+        private async Task<Payment> HandleSuccessfulPayment(Event stripeEvent)
         {
             var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
 
-            //var orderId = paymentIntent.Metadata["order_id"];
+            var orderId = paymentIntent.Metadata["orderId"];
             var transactionId = paymentIntent.Id;
             var amount = paymentIntent.AmountReceived;
 
             //Console.WriteLine($"✅ Payment Succeeded for Order: {orderId}");
 
-            await UpdateOrderPaymentAsync(new PaymentUpdateDto
+           return await UpdateOrderPaymentAsync(new PaymentUpdateDto
             {
-                //OrderId = int.Parse(orderId),
+                OrderId = int.Parse(orderId),
                 TransactionId = transactionId,
                 Amount = amount,
                 Status = "Succeeded",
                 //PaymentMethod = paymentIntent.PaymentMethod,
                 PaymentDate = DateTime.UtcNow
             });
+            
         }
 
-        private async Task HandleFailedPayment(Event stripeEvent)
+        private async Task<Payment> HandleFailedPayment(Event stripeEvent)
         {
             var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
 
             Console.WriteLine($"❌ Payment FAILED for Order: {paymentIntent.Metadata["order_id"]}");
 
-            await UpdateOrderPaymentAsync(new PaymentUpdateDto
+           return await UpdateOrderPaymentAsync(new PaymentUpdateDto
             {
                 OrderId = int.Parse(paymentIntent.Metadata["order_id"]),
                 TransactionId = paymentIntent.Id,
@@ -194,7 +194,7 @@ namespace E_commerce.Repository.PaymentRepository
                 PaymentDate = DateTime.UtcNow
             });
         }
-        public async Task UpdateOrderPaymentAsync(PaymentUpdateDto dto)
+        public async Task<Payment> UpdateOrderPaymentAsync(PaymentUpdateDto dto)
         {
             var order = await _context.Orders.FindAsync(dto.OrderId);
 
@@ -219,6 +219,7 @@ namespace E_commerce.Repository.PaymentRepository
            // order.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
+            return payment;
         }
     }
 }

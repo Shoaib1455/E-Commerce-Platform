@@ -19,6 +19,10 @@ public partial class Order
 
     public int? Addressid { get; set; }
 
+    public int? Shippingfee { get; set; }
+
+    public string? Paymentmethod { get; set; }
+
     public virtual Address? Address { get; set; }
 
     public virtual ICollection<Orderitem> Orderitems { get; set; } = new List<Orderitem>();

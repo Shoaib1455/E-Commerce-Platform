@@ -8,6 +8,7 @@ using E_commerce.Repository.PaymentRepository;
 using E_commerce.Repository.ProductRepository;
 using E_commerce.Repository.UserRepository;
 using E_commerce.Services;
+using E_commerce.Services.NotificationService;
 using E_commerce_project.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -36,8 +37,8 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-
-
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddSignalR();
 //builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddHttpContextAccessor();
 
@@ -100,8 +101,6 @@ builder.Services.AddAuthentication(options =>
                 ValidIssuer = builder.Configuration["Jwt:issuer"],
                 ValidAudience = builder.Configuration["Jwt:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jwt:key"]))
-
-
             };
         });
 string[] urls = builder.Configuration.GetSection("AllowedEndPoints:Urls").Get<string[]>().ToArray();
@@ -118,7 +117,7 @@ builder.Services.AddCors(options =>
 var stripeSecretKey = builder.Configuration["Stripe:SecretKey"];
 StripeConfiguration.ApiKey = stripeSecretKey;
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    builder.Services.AddDbContext<EcommerceContext>(options =>
+builder.Services.AddDbContext<EcommerceContext>(options =>
         options.UseNpgsql(connectionString));
     try
     {
