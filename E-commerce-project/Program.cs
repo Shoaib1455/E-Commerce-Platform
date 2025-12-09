@@ -4,20 +4,28 @@ using E_commerce.Repository.AddressRepository;
 using E_commerce.Repository.CartRepository;
 using E_commerce.Repository.CategoryRepository;
 using E_commerce.Repository.OrderRepository;
+using E_commerce.Repository.PaymentRepository;
 using E_commerce.Repository.ProductRepository;
 using E_commerce.Repository.UserRepository;
 using E_commerce.Services;
+using E_commerce.Services.NotificationService;
 using E_commerce_project.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Stripe;
 using System.Security.Policy;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5007); // HTTP
+    options.ListenAnyIP(7039, listenOptions => listenOptions.UseHttps()); // HTTPS
+});
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
@@ -28,11 +36,13 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
-
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddSignalR();
 //builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<E_commerce.Services.TokenService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -91,8 +101,6 @@ builder.Services.AddAuthentication(options =>
                 ValidIssuer = builder.Configuration["Jwt:issuer"],
                 ValidAudience = builder.Configuration["Jwt:Audience"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["jwt:key"]))
-
-
             };
         });
 string[] urls = builder.Configuration.GetSection("AllowedEndPoints:Urls").Get<string[]>().ToArray();
@@ -106,9 +114,10 @@ builder.Services.AddCors(options =>
                      .AllowAnyMethod();
           });
 });
-
+var stripeSecretKey = builder.Configuration["Stripe:SecretKey"];
+StripeConfiguration.ApiKey = stripeSecretKey;
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    builder.Services.AddDbContext<EcommerceContext>(options =>
+builder.Services.AddDbContext<EcommerceContext>(options =>
         options.UseNpgsql(connectionString));
     try
     {
@@ -142,7 +151,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
             });
 
     app.UseHttpsRedirection();
-        app.UseStaticFiles();
+     
         app.UseDeveloperExceptionPage();
         app.UseRouting();
         app.UseCors("AllowAllHeaders"); // Specify allowed origins explicitly

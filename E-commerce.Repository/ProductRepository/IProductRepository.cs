@@ -13,7 +13,7 @@ namespace E_commerce.Repository.ProductRepository
         public  Task<Product> AddProduct(ProductVM product);
         public  Task<Product> UpdateProduct(ProductVM product);
         public  Task<bool> DeleteProduct(long id);
-        public  Task<Product> GetProductById(long productId);
+        public  Task<ProductVM> GetProductById(int productId);
         public Task<List<ProductVM>> GetAllProducts();
     }
 }

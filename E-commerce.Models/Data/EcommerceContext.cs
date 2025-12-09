@@ -28,6 +28,8 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Orderitem> Orderitems { get; set; }
 
+    public virtual DbSet<Payment> Payments { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<Usermanagement> Usermanagements { get; set; }
@@ -55,6 +57,7 @@ public partial class EcommerceContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("country");
             entity.Property(e => e.Isdefault).HasColumnName("isdefault");
+            entity.Property(e => e.Phone).HasColumnName("phone");
             entity.Property(e => e.Postalcode).HasColumnName("postalcode");
             entity.Property(e => e.State)
                 .HasMaxLength(70)
@@ -151,6 +154,10 @@ public partial class EcommerceContext : DbContext
                 .HasColumnName("id");
             entity.Property(e => e.Addressid).HasColumnName("addressid");
             entity.Property(e => e.Createdat).HasColumnName("createdat");
+            entity.Property(e => e.Paymentmethod)
+                .HasMaxLength(6)
+                .HasColumnName("paymentmethod");
+            entity.Property(e => e.Shippingfee).HasColumnName("shippingfee");
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .HasColumnName("status");
@@ -186,6 +193,30 @@ public partial class EcommerceContext : DbContext
             entity.HasOne(d => d.Product).WithMany(p => p.Orderitems)
                 .HasForeignKey(d => d.Productid)
                 .HasConstraintName("fk_productid");
+        });
+
+        modelBuilder.Entity<Payment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("payment_pkey");
+
+            entity.ToTable("payment");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasIdentityOptions(95L, null, null, null, null, null)
+                .HasColumnName("id");
+            entity.Property(e => e.Amount).HasColumnName("amount");
+            entity.Property(e => e.Orderid).HasColumnName("orderid");
+            entity.Property(e => e.Status)
+                .HasColumnType("character varying")
+                .HasColumnName("status");
+            entity.Property(e => e.Transactionid)
+                .HasMaxLength(100)
+                .HasColumnName("transactionid");
+
+            entity.HasOne(d => d.Order).WithMany(p => p.Payments)
+                .HasForeignKey(d => d.Orderid)
+                .HasConstraintName("fk_orderid");
         });
 
         modelBuilder.Entity<Product>(entity =>

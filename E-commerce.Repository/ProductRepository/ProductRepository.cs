@@ -36,7 +36,6 @@ namespace E_commerce.Repository.ProductRepository
                 Isactive = productdetails.Isactive,
                 Categoryid= categoryid,
                 Imageurl = imageUrl,
-
             };
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
@@ -61,16 +60,24 @@ namespace E_commerce.Repository.ProductRepository
             await _context.SaveChangesAsync();
             return product;
         }
-        public async Task<Product> GetProductById(long productId)
+        public async Task<ProductVM> GetProductById(int productId)
         {
             var product = await _context.Products.Where(u => u.Id == productId).FirstOrDefaultAsync();
-            return product;
+            ProductVM products = new ProductVM
+            {
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                ImageUrl = product.Imageurl
+            };
+            return products;
         }
         public async Task<List<ProductVM>> GetAllProducts()
         {
             var products = await _context.Products.ToListAsync();
             var  productlist = products.
                 Select(p=>new ProductVM{
+                    Id=p.Id,
                     Name=p.Name,
                     Description=p.Description,
                     Price=p.Price,

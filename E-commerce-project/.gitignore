@@ -1,0 +1,46 @@
+#########################################
+# ASP.NET Core / .NET Core .gitignore  #
+#########################################
+
+# Build directories
+bin/
+obj/
+out/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.vscode/
+
+# NuGet Packages
+*.nupkg
+*.snupkg
+packages/
+
+# Logs
+*.log
+logs/
+
+# Generated wwwroot files
+wwwroot/lib/
+wwwroot/dist/
+
+# Sensitive settings files (ignored)
+appsettings.Development.json
+appsettings.Local.json
+appsettings.Test.json
+appsettings*.json
+
+# Secret keys
+*.key
+*.pem
+*.pfx
+stripe-keys.json
+stripe-secret.txt
+#env
+.env
+# Local secrets folder (if any)
+Secrets/

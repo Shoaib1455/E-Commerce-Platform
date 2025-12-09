@@ -33,9 +33,9 @@ namespace E_commerce.Repository.CategoryRepository
             return category;
 
         }
-        public async Task<Category> UpdateCategory(CategoryVM categorydetails)
+        public async Task<Category> UpdateCategory(int id,CategoryVM categorydetails)
         {
-            var oldcategory = await _context.Categories.Where(c=>c.Id== categorydetails.Id).FirstOrDefaultAsync();
+            var oldcategory = await _context.Categories.Where(c=>c.Id== id).FirstOrDefaultAsync();
             Category category = new Category()
             {
                 Name = categorydetails.Name ?? oldcategory.Name,

@@ -11,7 +11,7 @@ namespace E_commerce.Repository.CategoryRepository
     public interface ICategoryRepository
     {
         public Task<Category> AddCategory(CategoryVM category);
-        public Task<Category> UpdateCategory(CategoryVM category);
+        public Task<Category> UpdateCategory(int id, CategoryVM category);
         public Task<bool> DeleteCategory(long id);
         public Task<Category> GetCategoryById(long categoryId);
         public Task<List<Category>> GetAllCategory();

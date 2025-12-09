@@ -7,7 +7,7 @@ using System.Security.Claims;
 namespace E_commerce_project.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class OrderManagementController : Controller
     {
         private readonly IOrderRepository _orderrepository;
@@ -15,11 +15,11 @@ namespace E_commerce_project.Controllers
         {
             _orderrepository = orderrepository;
         }
-        [HttpPost("checkout")]
-       public async Task<Order> checkoutuser()
+        [HttpPost]
+       public async Task<Order> checkoutuser(OrderRequestDto orderequest)
         {
             var userid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result =await _orderrepository.Checkout(userid);
+            var result =await _orderrepository.Checkout(orderequest,userid);
             return result;
         }
         [HttpGet("orders of single user")]

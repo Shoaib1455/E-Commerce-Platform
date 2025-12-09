@@ -10,7 +10,7 @@ namespace E_commerce.Repository.OrderRepository
 {
     public interface IOrderRepository
     {
-        public Task<Order> Checkout(int userid);
+        public Task<Order> Checkout(OrderRequestDto payload, int userid);
         public Task<List<Order>> GetAllOrdersForSingleUser(int userid);
         public  Task<OrderDto> GetDetailsOfSingleOrder(int orderid);
         public Task<Order> CancelOrder(int orderid);

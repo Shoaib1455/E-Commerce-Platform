@@ -21,6 +21,8 @@ public partial class Address
 
     public int? Userid { get; set; }
 
+    public int? Phone { get; set; }
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual Usermanagement? User { get; set; }

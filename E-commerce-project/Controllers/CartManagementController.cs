@@ -17,7 +17,7 @@ namespace E_commerce_project.Controllers
         {
             _cartRepository = cartRepository;
         }
-        [HttpPost("Add Product")]
+        [HttpPost]
         public async Task<bool> AddProductToCart([FromBody] CartdetailsVM cartdetails)
         {
             var userid= int.Parse( User.FindFirstValue(ClaimTypes.NameIdentifier));

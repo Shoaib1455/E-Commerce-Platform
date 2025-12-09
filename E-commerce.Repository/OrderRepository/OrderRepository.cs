@@ -18,33 +18,64 @@ namespace E_commerce.Repository.OrderRepository
         { 
             _context = context;
         }
-        public async Task<Order> Checkout(int userid)
+        public async Task<Order> Checkout(OrderRequestDto payload,int userid)
         {
-            var cart = await _context.Carts.Where(u => u.Userid == userid && u.Isactive==true).FirstOrDefaultAsync();
-            var cartitems = await _context.Cartitems.Where(u => u.Cartid == cart.Id).ToListAsync();
-            var address=await _context.Addresses.Where(a=>a.Userid==userid && a.Isdefault==true ).FirstOrDefaultAsync();
-            if (cart == null)
+            //var cart = await _context.Carts.Where(u => u.Userid == userid && u.Isactive==true).FirstOrDefaultAsync();
+            //var cartitems = await _context.Cartitems.Where(u => u.Cartid == cart.Id).ToListAsync();
+            //
+            //if (cart == null)
+            //{
+            //    return null;
+            //}
+
+            var address = _context.Addresses.Where(o => o.Userid == userid && o.Isdefault == true).FirstOrDefault();
+            Address newAddress = new Address()
             {
-                return null;
-            }
-            if (address == null) {
+                //FullName = payload.Address.Shipping.FullName,
+                Phone = (int)payload.Address.Shipping.Phone,
+                Street = payload.Address.Shipping.Street,
+                City = payload.Address.Shipping.City,
+                Postalcode = payload.Address.Shipping.PostalCode,
+                Country = payload.Address.Shipping.Country,
+                State = payload.Address.Shipping.State,
+                Isdefault = (address == null) ? true : false,
+                Userid = userid
+            };
+            _context.Addresses.Add(newAddress);
+            await _context.SaveChangesAsync();
+
+
+            if (address == null && newAddress == null)
+            {
                 throw new Exception("No default address found. Please add or select an address before checkout.");
             }
+            //else if (address == null)
+            //{
+            //    order.Addressid = newAddress.Id;
+            //}
+            //else
+            //{
+            //    order.Addressid = address.Id;
+            //}
+            await _context.SaveChangesAsync();
             Order order = new Order()
             {
                 Userid = userid,
-                TotalAmount = 0,
-                Status="pending",
-                Addressid= address.Id 
+                TotalAmount = payload.Order.TotalAmount,
+                Shippingfee=payload.Order.ShippingFee,
+                Paymentmethod=payload.Order.PaymentMethod,
+                Status ="pending",
+                Addressid=newAddress.Id
+                
             };
             
             _context.Orders.Add(order);
-            
-
             await _context.SaveChangesAsync();
+
             var orderids = order.Id;
             var orders= _context.Orders.Where(o=>o.Userid==userid && o.Id== orderids).FirstOrDefault();
-            foreach (var item in cartitems)
+            
+            foreach (var item in payload.OrderItems)
             {
                 Orderitem orderitem = new Orderitem()
                 {
@@ -56,15 +87,15 @@ namespace E_commerce.Repository.OrderRepository
                 };
                 _context.Orderitems.Add(orderitem);
             }
-            cart.Isactive = false;
-            _context.Cartitems.RemoveRange(cartitems);
+            //cart.Isactive = false;
+            //_context.Cartitems.RemoveRange(cartitems);
             await _context.SaveChangesAsync();
-            if (orders != null)
-            {
-                var result =await _context.Orderitems.Where(o => o.Orderid == orders.Id).SumAsync(o => o.Totalprice);
-                orders.TotalAmount = result;
-                await _context.SaveChangesAsync();
-            }
+            //if (orders != null)
+            //{
+            //    var result =await _context.Orderitems.Where(o => o.Orderid == orders.Id).SumAsync(o => o.Totalprice);
+            //    orders.TotalAmount = result;
+            //    await _context.SaveChangesAsync();
+            //}
 
             return orders;
         }
