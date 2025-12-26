@@ -1,6 +1,7 @@
 using E_commerce.Models;
 using E_commerce.Models.Data;
 using E_commerce.Repository.AddressRepository;
+using E_commerce.Repository.Admin.AdminStatsRepository;
 using E_commerce.Repository.CartRepository;
 using E_commerce.Repository.CategoryRepository;
 using E_commerce.Repository.OrderRepository;
@@ -8,7 +9,9 @@ using E_commerce.Repository.PaymentRepository;
 using E_commerce.Repository.ProductRepository;
 using E_commerce.Repository.UserRepository;
 using E_commerce.Services;
+using E_commerce.Services.EmailService;
 using E_commerce.Services.NotificationService;
+using E_commerce.Services.SignalR;
 using E_commerce_project.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -38,6 +41,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IAdminStatsRepository, AdminStatsRepository>();
 builder.Services.AddSignalR();
 //builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddHttpContextAccessor();
@@ -164,14 +169,16 @@ builder.Services.AddDbContext<EcommerceContext>(options =>
         appBuilder => appBuilder.UseMiddleware<TokenValidationMiddleware>()
 );
 
-
+    app.MapHub<NotificationHub>("/notificationHub");
 
     app.MapControllerRoute(
             name: "default",
             pattern: "{controller=UserManagement}/{action=CreateUser}/{id?}");
+    
+    app.Run();
+  
+}
 
-        app.Run();
-    }
     catch (Exception ex)
     {
         Console.WriteLine("the app throws an Exception ", ex);
