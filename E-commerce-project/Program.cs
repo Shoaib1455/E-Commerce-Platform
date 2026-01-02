@@ -9,9 +9,11 @@ using E_commerce.Repository.PaymentRepository;
 using E_commerce.Repository.ProductRepository;
 using E_commerce.Repository.UserRepository;
 using E_commerce.Services;
+using E_commerce.Services.Caching;
 using E_commerce.Services.EmailService;
 using E_commerce.Services.NotificationService;
 using E_commerce.Services.SignalR;
+using E_commerce_project.Caching;
 using E_commerce_project.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -23,15 +25,16 @@ using System.Security.Policy;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(5007); // HTTP
-    options.ListenAnyIP(7039, listenOptions => listenOptions.UseHttps()); // HTTPS
-});
+builder.Logging.AddConsole();
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    options.ListenAnyIP(5007); // HTTP
+//    options.ListenAnyIP(7039, listenOptions => listenOptions.UseHttps()); // HTTPS
+//});
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICartRepository, CartRepository>();
@@ -43,6 +46,7 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAdminStatsRepository, AdminStatsRepository>();
+builder.Services.AddScoped<ICacheService, MemoryCacheService>();
 builder.Services.AddSignalR();
 //builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddHttpContextAccessor();

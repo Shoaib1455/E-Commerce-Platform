@@ -12,31 +12,31 @@ namespace E_commerce_project.Controllers.Admin
             _adminStatsRepository = adminStatsRepository;
         }
 
-        [HttpGet("overview")]
-        public async Task<IActionResult> GetOverview()
-        {
-            var stats = await _adminStatsRepository.GetOverviewAsync();
-            return Ok(stats);
-        }
-        [HttpGet("sales-trend")]
-        public async Task<IActionResult> GetSalesTrend([FromQuery] DateTime startDate,[FromQuery] DateTime endDate,[FromQuery] string groupBy = "day")
-        {
-            var result = await _adminStatsRepository.GetSalesTrendAsync(startDate, endDate, groupBy);
-            return Ok(result);
-        }
-        [HttpGet("top-products")]
-        public async Task<IActionResult> GetTopSellingProducts([FromQuery] int top = 10,[FromQuery] DateTime? startDate = null,[FromQuery] DateTime? endDate = null)
-        {
-            var result = await _adminStatsRepository.GetTopSellingProductsAsync(top, startDate, endDate);
+        //[HttpGet("overview")]
+        //public async Task<IActionResult> GetOverview()
+        //{
+        //    var stats = await _adminStatsRepository.GetOverviewAsync();
+        //    return Ok(stats);
+        //}
+        //[HttpGet("sales-trend")]
+        //public async Task<IActionResult> GetSalesTrend([FromQuery] DateTime startDate,[FromQuery] DateTime endDate,[FromQuery] string groupBy = "day")
+        //{
+        //    var result = await _adminStatsRepository.GetSalesTrendAsync(startDate, endDate, groupBy);
+        //    return Ok(result);
+        //}
+        //[HttpGet("top-products")]
+        //public async Task<IActionResult> GetTopSellingProducts([FromQuery] int top = 10,[FromQuery] DateTime? startDate = null,[FromQuery] DateTime? endDate = null)
+        //{
+        //    var result = await _adminStatsRepository.GetTopSellingProductsAsync(top, startDate, endDate);
 
-            return Ok(result);
-        }
-        [HttpGet("customers")]
-        public async Task<IActionResult> GetCustomerStats([FromQuery] int top = 5)
-        {
-            var result = await _adminStatsRepository.GetCustomerStatsAsync(top);
-            return Ok(result);
-        }
+        //    return Ok(result);
+        //}
+        //[HttpGet("customers")]
+        //public async Task<IActionResult> GetCustomerStats([FromQuery] int top = 5)
+        //{
+        //    var result = await _adminStatsRepository.GetCustomerStatsAsync(top);
+        //    return Ok(result);
+        //}
 
         //[HttpGet("low-stock")]
         //public async Task<IActionResult> GetLowStockProducts()

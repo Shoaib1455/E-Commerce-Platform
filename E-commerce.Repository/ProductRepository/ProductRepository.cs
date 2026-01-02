@@ -1,5 +1,6 @@
 ﻿using E_commerce.Models.Data;
 using E_commerce.Models.Models;
+using E_commerce.Services.Caching;
 using E_commerce.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +18,18 @@ namespace E_commerce.Repository.ProductRepository
         
         private readonly EcommerceContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public ProductRepository(EcommerceContext context , IHttpContextAccessor httpContextAccessor)
+        private readonly ICacheService _cache;
+        private const string ProductsCacheKey = "products_all";
+
+        public ProductRepository(EcommerceContext context , IHttpContextAccessor httpContextAccessor, ICacheService cache)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _cache = cache;
         }
         public async Task<Product> AddProduct(ProductVM productdetails)
         {
+
             var imageUrl=UploadImage(productdetails.ImageUrl);
             var categoryid = await _context.Categories.Where(c => c.Name == productdetails.CategoryName).Select(c => c.Id).FirstOrDefaultAsync();
 
@@ -39,6 +45,7 @@ namespace E_commerce.Repository.ProductRepository
             };
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
+            //_cache.Remove(CacheKeys.AllProducts);
             return product;
 
         }//problem in update
@@ -62,7 +69,7 @@ namespace E_commerce.Repository.ProductRepository
         }
         public async Task<ProductVM> GetProductById(int productId)
         {
-            var product = await _context.Products.Where(u => u.Id == productId).FirstOrDefaultAsync();
+            var product = await _context.Products.AsNoTracking().Where(u => u.Id == productId).FirstOrDefaultAsync();
             ProductVM products = new ProductVM
             {
                 Name = product.Name,
@@ -74,7 +81,12 @@ namespace E_commerce.Repository.ProductRepository
         }
         public async Task<List<ProductVM>> GetAllProducts()
         {
-            var products = await _context.Products.ToListAsync();
+            var cachedProducts = await _cache.GetAsync<List<ProductVM>>(ProductsCacheKey);
+            if (cachedProducts != null)
+            {
+                return cachedProducts;
+            }
+            var products = await _context.Products.AsNoTracking().ToListAsync();
             var  productlist = products.
                 Select(p=>new ProductVM{
                     Id=p.Id,
@@ -83,7 +95,7 @@ namespace E_commerce.Repository.ProductRepository
                     Price=p.Price,
                     ImageUrl= string.IsNullOrEmpty(p.Imageurl)? null: GetImageFullPath(p.Imageurl)
                 }).ToList();
-            
+            await _cache.SetAsync(ProductsCacheKey, productlist, TimeSpan.FromMinutes(10));
             return productlist;
         }
         public async Task<bool> DeleteProduct(long id) {
