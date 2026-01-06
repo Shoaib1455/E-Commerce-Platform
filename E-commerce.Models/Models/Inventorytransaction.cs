@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace E_commerce_project.Models;
+namespace E_commerce.Models.Models;
 
 public partial class Inventorytransaction
 {

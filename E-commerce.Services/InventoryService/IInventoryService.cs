@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace E_commerce.Models.Enums
+namespace E_commerce.Services.InventoryService
 {
-	public enum InventoryTransactionType
-	{
-		In,
-		Out,
-		Reserved
-	}
+    public interface IInventoryService
+    {
+
+    }
 }

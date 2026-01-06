@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace E_commerce_project.Models;
+namespace E_commerce.Models.Models;
 
 public partial class Inventory
 {
@@ -16,6 +16,8 @@ public partial class Inventory
     public bool? Isactive { get; set; }
 
     public DateTime? Lastupdatedat { get; set; }
+
+    public int? Reservedquantity { get; set; }
 
     public virtual Product Product { get; set; } = null!;
 }

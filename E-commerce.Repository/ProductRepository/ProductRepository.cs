@@ -1,12 +1,12 @@
 ﻿using E_commerce.Models.Data;
 using E_commerce.Models.Models;
+using E_commerce.Repository.InventoryRepository;
 using E_commerce.Services.Caching;
 using E_commerce.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,10 +15,10 @@ namespace E_commerce.Repository.ProductRepository
 {
     public class ProductRepository : IProductRepository
     {
-        
         private readonly EcommerceContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ICacheService _cache;
+        private readonly IInventoryRepository _inventoryRepository;
         private const string ProductsCacheKey = "products_all";
 
         public ProductRepository(EcommerceContext context , IHttpContextAccessor httpContextAccessor, ICacheService cache)
@@ -26,6 +26,19 @@ namespace E_commerce.Repository.ProductRepository
             _context = context;
             _httpContextAccessor = httpContextAccessor;
             _cache = cache;
+        }
+        public async Task<Product> AddProductWithInventoryAsync(ProductVM dto, int sellerId)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            // Add product
+            var product = await AddProduct(dto);
+
+            // Add initial inventory
+            await _inventoryRepository.AddInitialInventoryAsync(product.Id, dto.quantity, sellerId);
+
+            await transaction.CommitAsync();
+            return product;
         }
         public async Task<Product> AddProduct(ProductVM productdetails)
         {

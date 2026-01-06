@@ -1,7 +1,9 @@
 ﻿
 using E_commerce.Models.Data;
 using E_commerce.Models.Models;
+using E_commerce.Repository.InventoryRepository;
 using E_commerce.ViewModels;
+using Microsoft.EntityFrameworkCore;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -16,6 +18,7 @@ namespace E_commerce.Repository.PaymentRepository
     public class PaymentRepository:IPaymentRepository
     {
         private readonly EcommerceContext _context;
+        private readonly IInventoryRepository _inventoryRepository;
         public PaymentRepository(EcommerceContext context)
         {
             _context = context;
@@ -178,7 +181,6 @@ namespace E_commerce.Repository.PaymentRepository
             });
             
         }
-
         private async Task<Payment> HandleFailedPayment(Event stripeEvent)
         {
             var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
@@ -216,7 +218,44 @@ namespace E_commerce.Repository.PaymentRepository
 
             // Update order status
             order.Status = dto.Status; // Succeeded / Failed
-           // order.UpdatedAt = DateTime.UtcNow;
+                                       // order.UpdatedAt = DateTime.UtcNow;
+
+            if (dto.Status == "Paid")
+            {
+                var orderItems = await _context.Orderitems
+                    .Include(x => x.Product)
+                    .Where(x => x.Orderid == dto.OrderId)
+                    .ToListAsync();
+
+                foreach (var item in orderItems)
+                {
+                    // Reduce actual stock & reserved quantity
+                    await _inventoryRepository.ReduceStockAsync(
+                        productId: item.Productid,
+                        quantity: item.Quantity,
+                        sellerId: (int)item.Product.Sellerid,
+                        referenceType: "PaymentConfirmed",
+                        referenceId: payment.Id
+                    );
+                }
+            }
+            else
+            {
+                // Payment failed → release reserved stock
+                var orderItems = await _context.Orderitems
+                    .Where(x => x.Orderid == dto.OrderId)
+                    .ToListAsync();
+
+                foreach (var item in orderItems)
+                {
+                    await _inventoryRepository.ReleaseReservedStockAsync(
+                        productId: item.Id, // assuming you have this
+                        quantity: item.Quantity,
+                        userId: (int)order.Userid,          // logged in customer
+                        orderId: dto.OrderId
+                    );
+                }
+            }
 
             await _context.SaveChangesAsync();
             return payment;
