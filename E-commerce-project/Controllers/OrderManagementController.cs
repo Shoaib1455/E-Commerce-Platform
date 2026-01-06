@@ -2,6 +2,7 @@
 using E_commerce.Repository.OrderRepository;
 using E_commerce.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace E_commerce_project.Controllers
@@ -19,7 +20,12 @@ namespace E_commerce_project.Controllers
        public async Task<Order> checkoutuser(OrderRequestDto orderequest)
         {
             var userid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result =await _orderrepository.Checkout(orderequest,userid);
+            foreach (var c in User.Claims)
+            {
+                Console.WriteLine($"{c.Type}: {c.Value}");
+            }
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+            var result =await _orderrepository.Checkout(orderequest,userid,userEmail);
             return result;
         }
         [HttpGet("orders of single user")]

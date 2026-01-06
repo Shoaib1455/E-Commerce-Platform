@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
@@ -27,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\E-commerce.Models\E-commerce.Models.csproj" />
     <ProjectReference Include="..\E-commerce.Repository\E-commerce.Repository.csproj" />
+    <ProjectReference Include="..\E-commerce.Services\E-commerce.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>

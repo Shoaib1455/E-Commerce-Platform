@@ -9,7 +9,7 @@ namespace E_commerce.Services.NotificationService
 {
     public interface INotificationService
     {
-        Task SendToUserAsync(string userId, NotificationDto notification);
+        Task SendToUserAsync(int userId, NotificationDto notification);
     }
 }
-}
+

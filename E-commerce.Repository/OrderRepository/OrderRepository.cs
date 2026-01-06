@@ -1,5 +1,8 @@
 ﻿using E_commerce.Models.Data;
 using E_commerce.Models.Models;
+using E_commerce.Repository.InventoryRepository;
+using E_commerce.Services.EmailService;
+using E_commerce.Services.NotificationService;
 using E_commerce.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -14,11 +17,18 @@ namespace E_commerce.Repository.OrderRepository
     public class OrderRepository:IOrderRepository
     {
         private readonly EcommerceContext _context;
-        public OrderRepository(EcommerceContext context) 
+        private readonly INotificationService _notificationService;
+        private readonly IEmailService _emailService;
+        private readonly IInventoryRepository _inventoryRepository;
+        public OrderRepository(EcommerceContext context, INotificationService notificationService, IEmailService emailService, IInventoryRepository inventoryRepository) 
         { 
             _context = context;
+            _notificationService= notificationService;
+            _emailService = emailService;
+            _inventoryRepository = inventoryRepository;
         }
-        public async Task<Order> Checkout(OrderRequestDto payload,int userid)
+
+        public async Task<Order> Checkout(OrderRequestDto payload,int userid,string email)
         {
             //var cart = await _context.Carts.Where(u => u.Userid == userid && u.Isactive==true).FirstOrDefaultAsync();
             //var cartitems = await _context.Cartitems.Where(u => u.Cartid == cart.Id).ToListAsync();
@@ -27,10 +37,11 @@ namespace E_commerce.Repository.OrderRepository
             //{
             //    return null;
             //}
-
+            
             var address = _context.Addresses.Where(o => o.Userid == userid && o.Isdefault == true).FirstOrDefault();
             Address newAddress = new Address()
             {
+
                 //FullName = payload.Address.Shipping.FullName,
                 Phone = (int)payload.Address.Shipping.Phone,
                 Street = payload.Address.Shipping.Street,
@@ -49,6 +60,7 @@ namespace E_commerce.Repository.OrderRepository
             {
                 throw new Exception("No default address found. Please add or select an address before checkout.");
             }
+
             //else if (address == null)
             //{
             //    order.Addressid = newAddress.Id;
@@ -85,6 +97,7 @@ namespace E_commerce.Repository.OrderRepository
                     Totalprice=item.Unitprice * item.Quantity,
                     Orderid= orders.Id,
                 };
+                await _inventoryRepository.ReserveStockAsync(item.Productid, item.Quantity, userid, orderids);
                 _context.Orderitems.Add(orderitem);
             }
             //cart.Isactive = false;
@@ -96,7 +109,16 @@ namespace E_commerce.Repository.OrderRepository
             //    orders.TotalAmount = result;
             //    await _context.SaveChangesAsync();
             //}
-
+            await _notificationService.SendToUserAsync(
+            userid,
+            new NotificationDto
+            {
+                Title = "Order Placed",
+                Message = $"Your order #{orders.Id} has been placed successfully.",
+                OrderId = orders.Id.ToString()
+            }
+        );
+            await _emailService.SendOrderConfirmationEmailAsync(email, orders);
             return orders;
         }
         public async Task<List<Order>> GetAllOrdersForSingleUser(int userid)

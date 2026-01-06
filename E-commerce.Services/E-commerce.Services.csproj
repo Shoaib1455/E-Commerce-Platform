@@ -9,15 +9,19 @@
 
   <ItemGroup>
     <PackageReference Include="JWT" Version="11.0.0" />
+    <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.3.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
+    <PackageReference Include="MimeKit" Version="4.14.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     <PackageReference Include="System.Runtime" Version="4.3.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\E-commerce.Models\E-commerce.Models.csproj" />
+    <ProjectReference Include="..\E-commerce.ViewModels\E-commerce.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

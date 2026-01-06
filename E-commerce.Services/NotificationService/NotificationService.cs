@@ -12,10 +12,13 @@ namespace E_commerce.Services.NotificationService
     public class NotificationService : INotificationService
     {
         private readonly IHubContext<NotificationHub> _hubContext;
-        public NotificationService() { }
-        public async Task SendToUserAsync(string userId, NotificationDto notification)
+        public NotificationService(IHubContext<NotificationHub> hubContext)
         {
-            await _hubContext.Clients.Group(userId)
+            _hubContext = hubContext;
+        }
+        public async Task SendToUserAsync(int userId, NotificationDto notification)
+        {
+            await _hubContext.Clients.Group(userId.ToString())
                 .SendAsync("ReceiveNotification", notification);
         }
     }
