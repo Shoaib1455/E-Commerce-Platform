@@ -231,11 +231,11 @@ namespace E_commerce.Repository.PaymentRepository
                 {
                     // Reduce actual stock & reserved quantity
                     await _inventoryRepository.ReduceStockAsync(
-                        productId: item.Productid,
-                        quantity: item.Quantity,
-                        sellerId: (int)item.Product.Sellerid,
+                        productId: (int)item.Productid,
+                        quantity: (int)item.Quantity,
+                        sellerId: 89,//(int)item.Product.Sellerid,
                         referenceType: "PaymentConfirmed",
-                        referenceId: payment.Id
+                        referenceId:(int)payment.Id
                     );
                 }
             }
@@ -250,7 +250,7 @@ namespace E_commerce.Repository.PaymentRepository
                 {
                     await _inventoryRepository.ReleaseReservedStockAsync(
                         productId: item.Id, // assuming you have this
-                        quantity: item.Quantity,
+                        quantity: (int)item.Quantity,
                         userId: (int)order.Userid,          // logged in customer
                         orderId: dto.OrderId
                     );

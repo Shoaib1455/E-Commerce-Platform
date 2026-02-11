@@ -7,7 +7,7 @@ public partial class Inventory
 {
     public int Id { get; set; }
 
-    public int Productid { get; set; }
+    public int? Productid { get; set; }
 
     public int Quantityinstock { get; set; }
 
@@ -19,5 +19,7 @@ public partial class Inventory
 
     public int? Reservedquantity { get; set; }
 
-    public virtual Product Product { get; set; } = null!;
+    public virtual ICollection<Inventorytransaction> Inventorytransactions { get; set; } = new List<Inventorytransaction>();
+
+    public virtual Product? Product { get; set; }
 }

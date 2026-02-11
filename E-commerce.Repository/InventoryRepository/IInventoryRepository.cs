@@ -12,7 +12,7 @@ namespace E_commerce.Repository.InventoryRepository
         
         public Task<Inventory> AddInitialInventoryAsync(int productId, int quantity, int sellerId);
         public Task<Inventory> AddStockAsync(int inventoryId, int quantity, int sellerId, string referenceType, int referenceId);
-        public Task<Inventory> ReduceStockAsync(int productId, int quantity, int sellerId, string referenceType, long referenceId);
+        public Task<Inventory> ReduceStockAsync(int productId, int quantity, int sellerId, string referenceType, int referenceId);
         public Task ReserveStockAsync(int productId, int quantity, int userId, int orderId);
         public Task ReleaseReservedStockAsync(int productId, int quantity, int userId, int orderId);
         public Task<Inventory> GetInventoryByProductIdAsync(int productId);

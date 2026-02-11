@@ -140,11 +140,11 @@ namespace E_commerce.Repository.OrderRepository
                     Orderitem = order.Orderitems.Select(oi => new OrderitemDto
                     {
                         Id = oi.Id,
-                        Productid = oi.Productid,
-                        Quantity = oi.Quantity,
-                        Unitprice = oi.Unitprice,
-                        Totalprice = oi.Totalprice,
-                        Orderid = oi.Orderid
+                        Productid = (int)oi.Productid,
+                        Quantity = (int)oi.Quantity,
+                        Unitprice = (int)oi.Unitprice,
+                        Totalprice = (int)oi.Totalprice,
+                        Orderid = (int)oi.Orderid
                     }).ToList(),
                 };
                 return orderdt;

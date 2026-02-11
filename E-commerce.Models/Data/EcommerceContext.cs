@@ -148,57 +148,59 @@ public partial class EcommerceContext : DbContext
 
         modelBuilder.Entity<Inventory>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("inventory_pkey");
+            entity.HasKey(e => e.Id).HasName("pk_inventory");
 
             entity.ToTable("inventory");
 
             entity.Property(e => e.Id)
-                .UseIdentityAlwaysColumn()
-                .HasIdentityOptions(117890L, null, null, null, null, null)
+                .ValueGeneratedNever()
                 .HasColumnName("id");
             entity.Property(e => e.Isactive).HasColumnName("isactive");
             entity.Property(e => e.Lastupdatedat).HasColumnName("lastupdatedat");
             entity.Property(e => e.Productid).HasColumnName("productid");
             entity.Property(e => e.Quantityinstock).HasColumnName("quantityinstock");
-            entity.Property(e => e.Reorderlevel)
-                .HasDefaultValue(0)
-                .HasColumnName("reorderlevel");
+            entity.Property(e => e.Reorderlevel).HasColumnName("reorderlevel");
             entity.Property(e => e.Reservedquantity).HasColumnName("reservedquantity");
 
             entity.HasOne(d => d.Product).WithMany(p => p.Inventories)
                 .HasForeignKey(d => d.Productid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk-productid");
+                .HasConstraintName("fk-product");
         });
 
         modelBuilder.Entity<Inventorytransaction>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("inventorytransaction_pkey");
+            entity.HasKey(e => e.Id).HasName("pk_inventorytransaction");
 
             entity.ToTable("inventorytransaction");
 
             entity.Property(e => e.Id)
-                .ValueGeneratedNever()
+                .UseIdentityAlwaysColumn()
                 .HasColumnName("id");
             entity.Property(e => e.Afterquantity).HasColumnName("afterquantity");
             entity.Property(e => e.Beforequantity).HasColumnName("beforequantity");
-            entity.Property(e => e.Createdat)
-                .HasColumnType("time with time zone")
-                .HasColumnName("createdat");
+            entity.Property(e => e.Createdat).HasColumnName("createdat");
             entity.Property(e => e.Createdby).HasColumnName("createdby");
             entity.Property(e => e.Inventoryid).HasColumnName("inventoryid");
             entity.Property(e => e.Productid).HasColumnName("productid");
             entity.Property(e => e.Quantity).HasColumnName("quantity");
             entity.Property(e => e.Referenceid).HasColumnName("referenceid");
             entity.Property(e => e.Referencetype)
-                .HasMaxLength(50)
+                .HasMaxLength(200)
                 .HasColumnName("referencetype");
             entity.Property(e => e.Remarks)
                 .HasMaxLength(255)
                 .HasColumnName("remarks");
             entity.Property(e => e.Transactiontype)
-                .HasMaxLength(20)
+                .HasColumnType("character varying")
                 .HasColumnName("transactiontype");
+
+            entity.HasOne(d => d.Inventory).WithMany(p => p.Inventorytransactions)
+                .HasForeignKey(d => d.Inventoryid)
+                .HasConstraintName("fk_inventoryid");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Inventorytransactions)
+                .HasForeignKey(d => d.Productid)
+                .HasConstraintName("fk_productid");
         });
 
         modelBuilder.Entity<Order>(entity =>
@@ -247,12 +249,10 @@ public partial class EcommerceContext : DbContext
 
             entity.HasOne(d => d.Order).WithMany(p => p.Orderitems)
                 .HasForeignKey(d => d.Orderid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_orderid");
 
             entity.HasOne(d => d.Product).WithMany(p => p.Orderitems)
                 .HasForeignKey(d => d.Productid)
-                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_productid");
         });
 
@@ -303,7 +303,6 @@ public partial class EcommerceContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("name");
             entity.Property(e => e.Price).HasColumnName("price");
-            entity.Property(e => e.Sellerid).HasColumnName("sellerid");
             entity.Property(e => e.Sku)
                 .HasMaxLength(50)
                 .HasColumnName("sku");
@@ -312,10 +311,6 @@ public partial class EcommerceContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.Categoryid)
                 .HasConstraintName("fk-categoryid");
-
-            entity.HasOne(d => d.Seller).WithMany(p => p.Products)
-                .HasForeignKey(d => d.Sellerid)
-                .HasConstraintName("fk_sellerid");
         });
 
         modelBuilder.Entity<Usermanagement>(entity =>
