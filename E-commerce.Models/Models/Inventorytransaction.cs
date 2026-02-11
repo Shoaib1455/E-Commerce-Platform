@@ -7,9 +7,9 @@ public partial class Inventorytransaction
 {
     public int Id { get; set; }
 
-    public int Inventoryid { get; set; }
+    public int? Inventoryid { get; set; }
 
-    public int Productid { get; set; }
+    public int? Productid { get; set; }
 
     public string? Transactiontype { get; set; }
 
@@ -19,13 +19,17 @@ public partial class Inventorytransaction
 
     public int? Afterquantity { get; set; }
 
-    public string? Referencetype { get; set; }
-
     public int? Referenceid { get; set; }
 
     public string? Remarks { get; set; }
 
-    public DateTimeOffset? Createdat { get; set; }
+    public DateTime? Createdat { get; set; }
 
     public int? Createdby { get; set; }
+
+    public string? Referencetype { get; set; }
+
+    public virtual Inventory? Inventory { get; set; }
+
+    public virtual Product? Product { get; set; }
 }

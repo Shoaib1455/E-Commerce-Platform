@@ -216,7 +216,7 @@ namespace E_commerce.Repository.InventoryRepository
                 Productid = inventory.Productid,
                 Transactiontype = InventoryTransactionType.In.ToString(),
                 Quantity = quantity,
-                Referencetype = "PaymentFailed",
+                //Referencetype = "PaymentFailed",
                 Referenceid = orderId,
                 Createdby = userId,
                 Createdat = DateTime.UtcNow

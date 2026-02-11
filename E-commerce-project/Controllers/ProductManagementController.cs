@@ -2,6 +2,8 @@
 using E_commerce.Models.Models;
 using E_commerce.Repository.ProductRepository;
 using E_commerce.ViewModels;
+using E_commerce.ViewModels.Common;
+using E_commerce_project.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,11 +39,24 @@ namespace E_commerce_project.Controllers
             return getproduct;
         }
         [HttpGet]
-        [AllowAnonymous]
-        public async Task<List<ProductVM>> GetAllProducts()
+        public async Task<ApiResponse<List<ProductVM>>> GetAllProducts()
         {
             var productslist = await _productRepository.GetAllProducts();
-            return productslist;
+            if (productslist == null)
+            {
+                return new ApiResponse<List<ProductVM>>
+                {
+                    IsSuccess = false,
+                    Message = ApiMessages.NoDataFound,
+                    
+                };
+            }
+            return new ApiResponse<List<ProductVM>>
+            {
+                IsSuccess = true,
+                Message = ApiMessages.Success,
+                Result= productslist
+            };
         }
         [HttpDelete("{id}")]
         public async Task<bool> DeleteProduct(int pid)
