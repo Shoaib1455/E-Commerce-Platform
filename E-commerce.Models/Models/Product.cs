@@ -34,4 +34,6 @@ public partial class Product
     public virtual ICollection<Inventorytransaction> Inventorytransactions { get; set; } = new List<Inventorytransaction>();
 
     public virtual ICollection<Orderitem> Orderitems { get; set; } = new List<Orderitem>();
+
+    public virtual ICollection<Productimage> Productimages { get; set; } = new List<Productimage>();
 }

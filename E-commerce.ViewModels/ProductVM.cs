@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,10 @@ namespace E_commerce.ViewModels
         public string? Sku { get; set; }
         public int quantity {  get; set; }
         public bool? Isactive { get; set; }
-        public string ImageUrl { get; set; } = null;
+        public string ImageUrl { get; set; }
+        public List<string>? MultipleImagesUrl { get; set; }
+        public IFormFile ThumbnailImage { get; set; }        // single file
+        public List<IFormFile> ProductImages { get; set; }   // multiple files
         public string CategoryName { get; set; } = null!;
         public DateTime? Createdat { get; set; }
 

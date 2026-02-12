@@ -36,6 +36,8 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Product> Products { get; set; }
 
+    public virtual DbSet<Productimage> Productimages { get; set; }
+
     public virtual DbSet<Usermanagement> Usermanagements { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -311,6 +313,31 @@ public partial class EcommerceContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.Categoryid)
                 .HasConstraintName("fk-categoryid");
+        });
+
+        modelBuilder.Entity<Productimage>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("pk_imagesid");
+
+            entity.ToTable("productimages");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("id");
+            entity.Property(e => e.Createdat)
+                .HasColumnType("time with time zone")
+                .HasColumnName("createdat");
+            entity.Property(e => e.Imageurl)
+                .HasMaxLength(255)
+                .HasColumnName("imageurl");
+            entity.Property(e => e.Isprimary)
+                .HasDefaultValue(false)
+                .HasColumnName("isprimary");
+            entity.Property(e => e.Productid).HasColumnName("productid");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.Productimages)
+                .HasForeignKey(d => d.Productid)
+                .HasConstraintName("fk_productid");
         });
 
         modelBuilder.Entity<Usermanagement>(entity =>

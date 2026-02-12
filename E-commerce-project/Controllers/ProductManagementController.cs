@@ -20,7 +20,7 @@ namespace E_commerce_project.Controllers
             _productRepository = productRepository;
         }
         [HttpPost]
-        public async Task<Product> AddProduct(ProductVM product)
+        public async Task<Product> AddProduct([FromForm] ProductVM product)
         {
 
             var addedproduct = await _productRepository.AddProduct(product);

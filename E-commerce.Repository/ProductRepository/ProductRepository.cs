@@ -4,12 +4,14 @@ using E_commerce.Repository.InventoryRepository;
 using E_commerce.Services.Caching;
 using E_commerce.ViewModels;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace E_commerce.Repository.ProductRepository
 {
@@ -40,10 +42,11 @@ namespace E_commerce.Repository.ProductRepository
             await transaction.CommitAsync();
             return product;
         }
-        public async Task<Product> AddProduct(ProductVM productdetails)
+        public async Task<Product> AddProduct([FromForm] ProductVM productdetails)
         {
 
-            var imageUrl=UploadImage(productdetails.ImageUrl);
+            //var imageUrl=UploadImage(productdetails.ImageUrl);
+            var imageUrl= UploadImagesInFile(productdetails.ThumbnailImage);
             var categoryid = await _context.Categories.Where(c => c.Name == productdetails.CategoryName).Select(c => c.Id).FirstOrDefaultAsync();
 
             Product product = new Product()
@@ -57,6 +60,18 @@ namespace E_commerce.Repository.ProductRepository
                 Imageurl = imageUrl,
             };
             _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+
+            foreach (var image in productdetails.ProductImages)
+            {
+                string url = UploadImagesInFile(image);
+                _context.Productimages.Add(new Productimage
+                {
+                    Productid = product.Id, // example
+                    Imageurl = url,
+                    Createdat=DateTime.Now
+                });
+            }
             await _context.SaveChangesAsync();
             //_cache.Remove(CacheKeys.AllProducts);
             return product;
@@ -82,13 +97,17 @@ namespace E_commerce.Repository.ProductRepository
         }
         public async Task<ProductVM> GetProductById(int productId)
         {
-            var product = await _context.Products.AsNoTracking().Where(u => u.Id == productId).FirstOrDefaultAsync();
+            var product = await _context.Products.AsNoTracking().Include(i=>i.Productimages).Where(u => u.Id == productId).FirstOrDefaultAsync();
+            var fullImageUrls = product.Productimages
+    .Select(path => GetImageFullPath(path.Imageurl))
+    .ToList();
             ProductVM products = new ProductVM
             {
                 Name = product.Name,
                 Description = product.Description,
                 Price = product.Price,
-                ImageUrl = product.Imageurl
+                ImageUrl = string.IsNullOrEmpty(product.Imageurl) ? null : GetImageFullPath(product.Imageurl),
+                MultipleImagesUrl = fullImageUrls ==null ? null : fullImageUrls,
             };
             return products;
         }
@@ -147,6 +166,32 @@ namespace E_commerce.Repository.ProductRepository
             return Path.Combine("Media", fileName);
             
 
+        }
+        private string UploadImagesInFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return null;
+
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp",".jfif" };
+            var extension = Path.GetExtension(file.FileName).ToLower();
+
+            if (!allowedExtensions.Contains(extension))
+                throw new Exception("Invalid image type");
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+
+            var mediaFolder = Path.Combine(Directory.GetCurrentDirectory(), "Media");
+
+            if (!Directory.Exists(mediaFolder))
+                Directory.CreateDirectory(mediaFolder);
+
+            var savePath = Path.Combine(mediaFolder, fileName);
+
+            using var stream = new FileStream(savePath, FileMode.Create);
+            file.CopyTo(stream);
+
+            // relative path for DB
+            return Path.Combine("Media", fileName).Replace("\\", "/");
         }
         private string GetFileExtensionFromBase64(string base64String)
         {
