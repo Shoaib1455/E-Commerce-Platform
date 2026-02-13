@@ -4,7 +4,7 @@ using E_commerce.Models.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +23,7 @@ namespace E_commerce.Repository.InventoryRepository
 
         public async Task<Inventory> AddInitialInventoryAsync(int productId, int quantity, int sellerId)
         {
-            if (quantity <= 0) return null;
+            if (quantity < 0) return null;
 
             // Add inventory
             var inventoryRecord = new Inventory

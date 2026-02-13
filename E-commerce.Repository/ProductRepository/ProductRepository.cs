@@ -23,26 +23,27 @@ namespace E_commerce.Repository.ProductRepository
         private readonly IInventoryRepository _inventoryRepository;
         private const string ProductsCacheKey = "products_all";
 
-        public ProductRepository(EcommerceContext context , IHttpContextAccessor httpContextAccessor, ICacheService cache)
+        public ProductRepository(EcommerceContext context , IHttpContextAccessor httpContextAccessor, ICacheService cache, IInventoryRepository inventoryRepository)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
+            _inventoryRepository = inventoryRepository;
             _cache = cache;
         }
-        public async Task<Product> AddProductWithInventoryAsync(ProductVM dto, int sellerId)
-        {
-            using var transaction = await _context.Database.BeginTransactionAsync();
+        //public async Task<Product> AddProductWithInventoryAsync(ProductVM dto, int sellerId)
+        //{
+        //    using var transaction = await _context.Database.BeginTransactionAsync();
 
-            // Add product
-            var product = await AddProduct(dto);
+        //    // Add product
+        //    var product = await AddProduct(dto);
 
-            // Add initial inventory
-            await _inventoryRepository.AddInitialInventoryAsync(product.Id, dto.quantity, sellerId);
+        //    // Add initial inventory
+        //    await _inventoryRepository.AddInitialInventoryAsync(product.Id, dto.quantity, sellerId);
 
-            await transaction.CommitAsync();
-            return product;
-        }
-        public async Task<Product> AddProduct([FromForm] ProductVM productdetails)
+        //    await transaction.CommitAsync();
+        //    return product;
+        //}
+        public async Task<Product> AddProduct([FromForm] ProductVM productdetails,int sellerid)
         {
 
             //var imageUrl=UploadImage(productdetails.ImageUrl);
@@ -73,6 +74,7 @@ namespace E_commerce.Repository.ProductRepository
                 });
             }
             await _context.SaveChangesAsync();
+            await _inventoryRepository.AddInitialInventoryAsync(product.Id, productdetails.Quantity,sellerid);
             //_cache.Remove(CacheKeys.AllProducts);
             return product;
 
