@@ -18,7 +18,7 @@ namespace E_commerce.ViewModels
         public int Price { get; set; }
 
         public string? Sku { get; set; }
-        public int quantity {  get; set; }
+        public int Quantity {  get; set; }
         public bool? Isactive { get; set; }
         public string ImageUrl { get; set; }
         public List<string>? MultipleImagesUrl { get; set; }

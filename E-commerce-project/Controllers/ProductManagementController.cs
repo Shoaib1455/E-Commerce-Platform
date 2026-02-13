@@ -6,6 +6,7 @@ using E_commerce.ViewModels.Common;
 using E_commerce_project.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace E_commerce_project.Controllers
 {
@@ -22,8 +23,8 @@ namespace E_commerce_project.Controllers
         [HttpPost]
         public async Task<Product> AddProduct([FromForm] ProductVM product)
         {
-
-            var addedproduct = await _productRepository.AddProduct(product);
+            var userid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var addedproduct = await _productRepository.AddProduct(product,userid);
             return addedproduct;
         }
         [HttpPut("{id}")]

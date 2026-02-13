@@ -3,6 +3,7 @@ using E_commerce.Repository.ProductRepository;
 using E_commerce.Repository.UserRepository;
 using E_commerce.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace E_commerce_project.Controllers.Admin
 {
@@ -25,7 +26,8 @@ namespace E_commerce_project.Controllers.Admin
         }
         public async Task<Product> AddProduct(ProductVM product)
         {
-            var products = await _productRepository.AddProduct(product);
+            var userid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var products = await _productRepository.AddProduct(product, userid);
             return products;
         }
         public async Task<Product> UpdateProduct(ProductVM product)

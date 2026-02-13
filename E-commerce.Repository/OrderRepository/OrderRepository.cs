@@ -118,7 +118,7 @@ namespace E_commerce.Repository.OrderRepository
                 OrderId = orders.Id.ToString()
             }
         );
-            await _emailService.SendOrderConfirmationEmailAsync(email, orders);
+            //await _emailService.SendOrderConfirmationEmailAsync(email, orders);
             return orders;
         }
         public async Task<List<Order>> GetAllOrdersForSingleUser(int userid)

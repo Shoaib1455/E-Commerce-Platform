@@ -12,7 +12,7 @@ namespace E_commerce.Repository.ProductRepository
 {
     public interface IProductRepository
     {
-        public  Task<Product> AddProduct([FromForm] ProductVM product);
+        public  Task<Product> AddProduct([FromForm] ProductVM product, int sellerid);
         public  Task<Product> UpdateProduct(ProductVM product);
         public  Task<bool> DeleteProduct(long id);
         public  Task<ProductVM> GetProductById(int productId);
