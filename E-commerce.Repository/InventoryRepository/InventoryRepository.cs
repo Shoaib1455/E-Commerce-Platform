@@ -58,7 +58,7 @@ namespace E_commerce.Repository.InventoryRepository
         // ================================
         // 2️⃣ Increase stock (e.g., new shipment)
         // ================================
-        public async Task<Inventory> AddStockAsync(int inventoryId, int quantity, int sellerId, string referenceType, int referenceId)
+        public async Task<Inventory> AddStockAsync(int inventoryId, int quantity, int sellerId, string referenceType, long referenceId)
         {
             var inventoryRecord = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == inventoryId);
             if (inventoryRecord == null) return null;
@@ -91,7 +91,7 @@ namespace E_commerce.Repository.InventoryRepository
         // ================================
         // 3️⃣ Decrease stock (e.g., order placed)
         // ================================
-        public async Task<Inventory> ReduceStockAsync(int productId, int quantity, int sellerId, string referenceType, int referenceId)
+        public async Task<Inventory> ReduceStockAsync(int productId, int quantity, int sellerId, string referenceType, long referenceId)
         {
             var inventoryRecord = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == productId);
             if (inventoryRecord == null || inventoryRecord.Quantityinstock < quantity)
@@ -169,16 +169,20 @@ namespace E_commerce.Repository.InventoryRepository
 
             var inventory = await _context.Inventories
                 .FirstOrDefaultAsync(i => i.Productid == productId);
+            //var inventorytransaction = await _context.Inventorytransactions.FirstOrDefaultAsync(it => it.Productid == productId);
 
             if (inventory == null)
                 throw new Exception("Inventory not found");
-
+            //if(inventorytransaction==null)
+            //    throw new Exception("Inventory not found");
+            var beforequantity = inventory.Quantityinstock;
             var availableStock = inventory.Quantityinstock - inventory.Reservedquantity;
 
             if (availableStock < quantity)
                 throw new Exception("Insufficient stock");
 
-            inventory.Reservedquantity += quantity;
+            inventory.Reservedquantity = (inventory.Reservedquantity ?? 0) + quantity; ;
+            inventory.Quantityinstock -= quantity;
             inventory.Lastupdatedat = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -189,8 +193,8 @@ namespace E_commerce.Repository.InventoryRepository
                 Productid = inventory.Productid,
                 Transactiontype = InventoryTransactionType.Reserved.ToString(),
                 Quantity = quantity,
-                Beforequantity = availableStock,
-                Afterquantity = availableStock - quantity,
+                Beforequantity = beforequantity,
+                Afterquantity = inventory.Quantityinstock ,
                 Referencetype = "Checkout",
                 Referenceid = orderId,
                 Createdby = userId,
@@ -216,7 +220,7 @@ namespace E_commerce.Repository.InventoryRepository
                 Productid = inventory.Productid,
                 Transactiontype = InventoryTransactionType.In.ToString(),
                 Quantity = quantity,
-                //Referencetype = "PaymentFailed",
+                Referencetype = "PaymentFailed",
                 Referenceid = orderId,
                 Createdby = userId,
                 Createdat = DateTime.UtcNow

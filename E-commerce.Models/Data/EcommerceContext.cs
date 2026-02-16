@@ -155,7 +155,8 @@ public partial class EcommerceContext : DbContext
             entity.ToTable("inventory");
 
             entity.Property(e => e.Id)
-                .ValueGeneratedNever()
+                .UseIdentityAlwaysColumn()
+                .HasIdentityOptions(194L, null, null, null, null, null)
                 .HasColumnName("id");
             entity.Property(e => e.Isactive).HasColumnName("isactive");
             entity.Property(e => e.Lastupdatedat).HasColumnName("lastupdatedat");
@@ -305,6 +306,7 @@ public partial class EcommerceContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("name");
             entity.Property(e => e.Price).HasColumnName("price");
+            entity.Property(e => e.Sellerid).HasColumnName("sellerid");
             entity.Property(e => e.Sku)
                 .HasMaxLength(50)
                 .HasColumnName("sku");
@@ -313,6 +315,10 @@ public partial class EcommerceContext : DbContext
             entity.HasOne(d => d.Category).WithMany(p => p.Products)
                 .HasForeignKey(d => d.Categoryid)
                 .HasConstraintName("fk-categoryid");
+
+            entity.HasOne(d => d.Seller).WithMany(p => p.Products)
+                .HasForeignKey(d => d.Sellerid)
+                .HasConstraintName("fk_sellerid");
         });
 
         modelBuilder.Entity<Productimage>(entity =>

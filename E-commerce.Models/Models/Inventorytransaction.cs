@@ -19,7 +19,7 @@ public partial class Inventorytransaction
 
     public int? Afterquantity { get; set; }
 
-    public int? Referenceid { get; set; }
+    public long Referenceid { get; set; }
 
     public string? Remarks { get; set; }
 

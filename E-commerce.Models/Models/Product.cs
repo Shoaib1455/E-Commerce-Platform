@@ -25,6 +25,8 @@ public partial class Product
 
     public string? Imageurl { get; set; }
 
+    public int? Sellerid { get; set; }
+
     public virtual ICollection<Cartitem> Cartitems { get; set; } = new List<Cartitem>();
 
     public virtual Category? Category { get; set; }
@@ -36,4 +38,6 @@ public partial class Product
     public virtual ICollection<Orderitem> Orderitems { get; set; } = new List<Orderitem>();
 
     public virtual ICollection<Productimage> Productimages { get; set; } = new List<Productimage>();
+
+    public virtual Usermanagement? Seller { get; set; }
 }

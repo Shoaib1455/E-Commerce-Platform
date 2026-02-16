@@ -14,5 +14,6 @@ namespace E_commerce.Repository.PaymentRepository
     {
         //public Task ProcessPaymentEvent(Event stripeEvent );
         public Task<Payment> ProcessPaymentWebhookAsync(Event stripeEvent);
+        public double ConvertPkrToUsd(double amountPkr, double usdRate);
     }
 }
