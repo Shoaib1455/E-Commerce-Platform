@@ -59,6 +59,7 @@ namespace E_commerce.Repository.ProductRepository
                 Isactive = productdetails.Isactive,
                 Categoryid= categoryid,
                 Imageurl = imageUrl,
+                Sellerid=sellerid
             };
             _context.Products.Add(product);
             await _context.SaveChangesAsync();

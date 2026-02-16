@@ -173,7 +173,7 @@ namespace E_commerce.Repository.PaymentRepository
            return await UpdateOrderPaymentAsync(new PaymentUpdateDto
             {
                 OrderId = int.Parse(orderId),
-                TransactionId = transactionId,
+                TransactionId = (String)transactionId,
                 Amount = amount,
                 Status = "Succeeded",
                 //PaymentMethod = paymentIntent.PaymentMethod,
@@ -213,14 +213,15 @@ namespace E_commerce.Repository.PaymentRepository
                // PaymentMethod = dto.PaymentMethod,
                // PaymentDate = dto.PaymentDate
             };
-
+            Console.WriteLine("written ", payment.Id);
             _context.Payments.Add(payment);
-
+            await _context.SaveChangesAsync();
+            Console.WriteLine("written ", payment.Id);
             // Update order status
             order.Status = dto.Status; // Succeeded / Failed
                                        // order.UpdatedAt = DateTime.UtcNow;
 
-            if (dto.Status == "Paid")
+            if (dto.Status == "Succeeded")
             {
                 var orderItems = await _context.Orderitems
                     .Include(x => x.Product)
@@ -231,11 +232,11 @@ namespace E_commerce.Repository.PaymentRepository
                 {
                     // Reduce actual stock & reserved quantity
                     await _inventoryRepository.ReduceStockAsync(
-                        productId: (int)item.Productid,
-                        quantity: (int)item.Quantity,
-                        sellerId: 89,//(int)item.Product.Sellerid,
+                        productId: item.Productid ?? throw new Exception("ProductId is NULL"),
+                        quantity: item.Quantity ?? throw new Exception("Quantity is NULL"),
+                        sellerId: item.Product.Sellerid ?? throw new Exception("SellerId is NULL or Product not loaded"),
                         referenceType: "PaymentConfirmed",
-                        referenceId:(int)payment.Id
+                        referenceId: payment.Id
                     );
                 }
             }
@@ -249,8 +250,8 @@ namespace E_commerce.Repository.PaymentRepository
                 foreach (var item in orderItems)
                 {
                     await _inventoryRepository.ReleaseReservedStockAsync(
-                        productId: item.Id, // assuming you have this
-                        quantity: (int)item.Quantity,
+                        productId: item.Productid ?? throw new Exception("ProductId is NULL"),// assuming you have this
+                        quantity: item.Quantity ?? throw new Exception("Quantity is NULL"),
                         userId: (int)order.Userid,          // logged in customer
                         orderId: dto.OrderId
                     );
@@ -259,6 +260,10 @@ namespace E_commerce.Repository.PaymentRepository
 
             await _context.SaveChangesAsync();
             return payment;
+        }
+        public double ConvertPkrToUsd(double amountPkr, double usdRate)
+        {
+            return Math.Round(amountPkr / usdRate, 2);
         }
     }
 }

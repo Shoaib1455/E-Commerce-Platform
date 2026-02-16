@@ -76,6 +76,7 @@ namespace E_commerce.Repository.OrderRepository
                 TotalAmount = payload.Order.TotalAmount,
                 Shippingfee=payload.Order.ShippingFee,
                 Paymentmethod=payload.Order.PaymentMethod,
+                Createdat= DateTime.UtcNow,
                 Status ="pending",
                 Addressid=newAddress.Id
                 
@@ -179,7 +180,7 @@ namespace E_commerce.Repository.OrderRepository
             return order;
         }
 
-        public async Task<Order> GetOrderById(long orderid)
+        public async Task<Order> GetOrderById(int orderid)
         {
             var order =await _context.Orders.Where(o=> o.Id==orderid).FirstOrDefaultAsync();
 

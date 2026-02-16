@@ -18,7 +18,7 @@ namespace E_commerce_project.Controllers.Admin
             return orders;
         }
 
-        public async Task<Order> GetOrdersById(long orderid)
+        public async Task<Order> GetOrdersById(int orderid)
         {
             var order = await _orderRepository.GetOrderById(orderid);
             return order;
