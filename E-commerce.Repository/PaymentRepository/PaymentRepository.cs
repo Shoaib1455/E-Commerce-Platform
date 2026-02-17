@@ -19,9 +19,10 @@ namespace E_commerce.Repository.PaymentRepository
     {
         private readonly EcommerceContext _context;
         private readonly IInventoryRepository _inventoryRepository;
-        public PaymentRepository(EcommerceContext context)
+        public PaymentRepository(EcommerceContext context, IInventoryRepository inventoryRepository)
         {
             _context = context;
+            _inventoryRepository = inventoryRepository;
         }
         //public async Task ProcessPaymentEvent(Event stripeEvent )
         //{
@@ -177,7 +178,7 @@ namespace E_commerce.Repository.PaymentRepository
                 Amount = amount,
                 Status = "Succeeded",
                 //PaymentMethod = paymentIntent.PaymentMethod,
-                PaymentDate = DateTime.UtcNow
+                //PaymentDate = DateTime.UtcNow
             });
             
         }
@@ -198,19 +199,28 @@ namespace E_commerce.Repository.PaymentRepository
         }
         public async Task<Payment> UpdateOrderPaymentAsync(PaymentUpdateDto dto)
         {
+            await using var tx = await _context.Database.BeginTransactionAsync();
             var order = await _context.Orders.FindAsync(dto.OrderId);
+
+            dto.Amount = dto.Amount / 100;
+            Decimal amountInPkr=ConvertUsdToPkr(dto.Amount, (Decimal)279.5);
 
             if (order == null)
                 throw new Exception("Order not found");
 
+            var existingPayment = await _context.Payments
+        .FirstOrDefaultAsync(p => p.Transactionid == dto.TransactionId);
+
+            if (existingPayment != null)
+                return existingPayment;
             // Update payment table
             var payment = new Payment
             {
                 Orderid = dto.OrderId,
                 Transactionid = dto.TransactionId,
-                Amount = dto.Amount,
+                Amount = (long)amountInPkr,
                 Status = dto.Status,
-               // PaymentMethod = dto.PaymentMethod,
+               //PaymentMethod = dto.PaymentMethod,
                // PaymentDate = dto.PaymentDate
             };
             Console.WriteLine("written ", payment.Id);
@@ -219,7 +229,10 @@ namespace E_commerce.Repository.PaymentRepository
             Console.WriteLine("written ", payment.Id);
             // Update order status
             order.Status = dto.Status; // Succeeded / Failed
-                                       // order.UpdatedAt = DateTime.UtcNow;
+            order.Updatedat = DateTime.UtcNow;  // order.UpdatedAt = DateTime.UtcNow;
+
+            var status = dto.Status?.ToLowerInvariant();
+            
 
             if (dto.Status == "Succeeded")
             {
@@ -227,43 +240,78 @@ namespace E_commerce.Repository.PaymentRepository
                     .Include(x => x.Product)
                     .Where(x => x.Orderid == dto.OrderId)
                     .ToListAsync();
+                if (orderItems == null || !orderItems.Any())
+                    throw new Exception($"No order items found for OrderId={dto.OrderId}");
+
 
                 foreach (var item in orderItems)
                 {
+                    if (item == null)
+                        throw new Exception("Order item is NULL");
+
+                    if (!item.Productid.HasValue)
+                        throw new Exception($"ProductId is NULL for OrderItem {item.Id}");
+
+                    if (!item.Quantity.HasValue)
+                        throw new Exception($"Quantity is NULL for Product {item.Productid}");
+
+                    if (item.Product == null)
+                        throw new Exception($"Product not loaded for ProductId {item.Productid}");
+
+                    if (!item.Product.Sellerid.HasValue)
+                        throw new Exception($"SellerId is NULL for Product {item.Productid}");
                     // Reduce actual stock & reserved quantity
-                    await _inventoryRepository.ReduceStockAsync(
-                        productId: item.Productid ?? throw new Exception("ProductId is NULL"),
-                        quantity: item.Quantity ?? throw new Exception("Quantity is NULL"),
-                        sellerId: item.Product.Sellerid ?? throw new Exception("SellerId is NULL or Product not loaded"),
-                        referenceType: "PaymentConfirmed",
-                        referenceId: payment.Id
+                    var inventoryupdated=await _inventoryRepository.ReduceStockAsync(
+                         item.Productid.Value,
+                         item.Quantity.Value ,
+                         item.Product.Sellerid.Value,
+                         "PaymentConfirmed",
+                         payment.Id
                     );
                 }
+
             }
             else
             {
+                if (!order.Userid.HasValue)
+                    throw new Exception("Order.UserId is NULL");
                 // Payment failed → release reserved stock
                 var orderItems = await _context.Orderitems
                     .Where(x => x.Orderid == dto.OrderId)
                     .ToListAsync();
+                if (orderItems == null || !orderItems.Any())
+                    throw new Exception($"No order items found for OrderId {dto.OrderId}");
 
+                if (!order.Userid.HasValue)
+                    throw new Exception("Order.UserId is NULL");
                 foreach (var item in orderItems)
                 {
+                    if (!item.Productid.HasValue)
+                        throw new Exception($"ProductId is NULL for OrderItem {item.Id}");
+
+                    if (!item.Quantity.HasValue)
+                        throw new Exception($"Quantity is NULL for ProductId {item.Productid}");
                     await _inventoryRepository.ReleaseReservedStockAsync(
-                        productId: item.Productid ?? throw new Exception("ProductId is NULL"),// assuming you have this
-                        quantity: item.Quantity ?? throw new Exception("Quantity is NULL"),
-                        userId: (int)order.Userid,          // logged in customer
-                        orderId: dto.OrderId
+                         item.Productid.Value,// assuming you have this
+                        item.Quantity.Value,
+                         (int)order.Userid,          // logged in customer
+                        dto.OrderId
                     );
                 }
             }
 
             await _context.SaveChangesAsync();
+            await tx.CommitAsync();
             return payment;
         }
-        public double ConvertPkrToUsd(double amountPkr, double usdRate)
+        public Decimal ConvertPkrToUsd(decimal amountPkr, decimal usdRate)
         {
             return Math.Round(amountPkr / usdRate, 2);
+        }
+
+        public decimal ConvertUsdToPkr(decimal amountUsd, decimal usdRate)
+        {
+            return Math.Round(amountUsd * usdRate, 2);
         }
     }
 }

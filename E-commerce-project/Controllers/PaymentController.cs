@@ -63,7 +63,7 @@ namespace E_commerce_project.Controllers
             //StripeConfiguration.ApiKey = "sk_test_51SXHeBINeRcPQQXNTL6LEkDIKmdZ9FvxgzJPf2ONX5Xy9M9xqJBLE1hjYpJQk3K5leTkqOf2lncZB0HgK4mX1Res00THdgn8kC"; // your secret key
             StripeConfiguration.ApiKey = _config["Stripe:SecretKey"];
             var order = await _orderRepository.GetOrderById(dto.OrderId);
-            var amountinusd = _paymentRepository.ConvertPkrToUsd((int) order.TotalAmount, 279.5);
+            var amountinusd = _paymentRepository.ConvertPkrToUsd((Decimal)order.TotalAmount, (Decimal)279.5);
             var options = new PaymentIntentCreateOptions
             {
                 Amount = (long)Math.Round(amountinusd * 100), // in cents
