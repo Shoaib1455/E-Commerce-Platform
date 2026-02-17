@@ -93,11 +93,12 @@ namespace E_commerce.Repository.InventoryRepository
         // ================================
         public async Task<Inventory> ReduceStockAsync(int productId, int quantity, int sellerId, string referenceType, long referenceId)
         {
-            var inventoryRecord = await _context.Inventories.FirstOrDefaultAsync(i => i.Id == productId);
+            var inventoryRecord = await _context.Inventories.FirstOrDefaultAsync(i => i.Productid == productId);
             if (inventoryRecord == null || inventoryRecord.Quantityinstock < quantity)
                 throw new InvalidOperationException("Insufficient stock");
 
             int beforeQty = inventoryRecord.Quantityinstock;
+            
             inventoryRecord.Quantityinstock -= quantity;
             inventoryRecord.Lastupdatedat = DateTime.UtcNow;
             _context.Inventories.Update(inventoryRecord);
