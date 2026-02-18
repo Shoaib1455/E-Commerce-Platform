@@ -14,5 +14,6 @@ namespace E_commerce.ViewModels
         public string Status { get; set; } // Succeeded / Failed
         public string PaymentMethod { get; set; }
         public DateTime PaymentDate { get; set; }
+        public string StripeEventId { get; set; }
     }
 }

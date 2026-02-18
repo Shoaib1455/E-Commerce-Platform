@@ -34,6 +34,8 @@ public partial class EcommerceContext : DbContext
 
     public virtual DbSet<Payment> Payments { get; set; }
 
+    public virtual DbSet<Paymentintent> Paymentintents { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
 
     public virtual DbSet<Productimage> Productimages { get; set; }
@@ -270,7 +272,15 @@ public partial class EcommerceContext : DbContext
                 .HasIdentityOptions(95L, null, null, null, null, null)
                 .HasColumnName("id");
             entity.Property(e => e.Amount).HasColumnName("amount");
+            entity.Property(e => e.Idempotencykey)
+                .HasMaxLength(255)
+                .HasDefaultValueSql("12345")
+                .HasColumnName("idempotencykey");
             entity.Property(e => e.Orderid).HasColumnName("orderid");
+            entity.Property(e => e.Paymentdate).HasColumnName("paymentdate");
+            entity.Property(e => e.Paymentmethod)
+                .HasMaxLength(100)
+                .HasColumnName("paymentmethod");
             entity.Property(e => e.Status)
                 .HasColumnType("character varying")
                 .HasColumnName("status");
@@ -281,6 +291,30 @@ public partial class EcommerceContext : DbContext
             entity.HasOne(d => d.Order).WithMany(p => p.Payments)
                 .HasForeignKey(d => d.Orderid)
                 .HasConstraintName("fk_orderid");
+        });
+
+        modelBuilder.Entity<Paymentintent>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("paymentintents_pkey");
+
+            entity.ToTable("paymentintents");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.Amount).HasColumnName("amount");
+            entity.Property(e => e.Clientsecret)
+                .HasColumnType("character varying")
+                .HasColumnName("clientsecret");
+            entity.Property(e => e.Createdat).HasColumnName("createdat");
+            entity.Property(e => e.Currency).HasMaxLength(10);
+            entity.Property(e => e.Orderid).HasColumnName("orderid");
+            entity.Property(e => e.Status)
+                .HasMaxLength(30)
+                .HasColumnName("status");
+            entity.Property(e => e.Stripepaymentintentid)
+                .HasColumnType("character varying")
+                .HasColumnName("stripepaymentintentid");
         });
 
         modelBuilder.Entity<Product>(entity =>

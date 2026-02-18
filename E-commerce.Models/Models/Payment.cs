@@ -15,5 +15,11 @@ public partial class Payment
 
     public int? Orderid { get; set; }
 
+    public string Idempotencykey { get; set; } = null!;
+
+    public string? Paymentmethod { get; set; }
+
+    public DateTime? Paymentdate { get; set; }
+
     public virtual Order? Order { get; set; }
 }
