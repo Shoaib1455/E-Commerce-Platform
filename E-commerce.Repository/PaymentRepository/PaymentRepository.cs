@@ -139,6 +139,15 @@ namespace E_commerce.Repository.PaymentRepository
         {
             try
             {
+                //        bool alreadyProcessed = await _context.Payments
+                //.AnyAsync(p => p.StripeEventId == stripeEvent.Id);
+
+                //if (alreadyProcessed)
+                //{
+                //    // Stripe retry → SAFE ACK
+                //    return Ok();
+                //}
+
                 switch (stripeEvent.Type)
                 {
                     case "payment_intent.succeeded":
@@ -194,8 +203,9 @@ namespace E_commerce.Repository.PaymentRepository
                 TransactionId = paymentIntent.Id,
                 Amount = paymentIntent.Amount,
                 Status = "Failed",
-                PaymentDate = DateTime.UtcNow
-            });
+                PaymentDate = DateTime.UtcNow,
+                StripeEventId= stripeEvent.Id
+           });
         }
         public async Task<Payment> UpdateOrderPaymentAsync(PaymentUpdateDto dto)
         {
@@ -221,7 +231,8 @@ namespace E_commerce.Repository.PaymentRepository
                 Amount = (long)amountInPkr,
                 Status = dto.Status,
                //PaymentMethod = dto.PaymentMethod,
-               // PaymentDate = dto.PaymentDate
+               // PaymentDate = dto.PaymentDate,
+               Idempotencykey= dto.StripeEventId
             };
             Console.WriteLine("written ", payment.Id);
             _context.Payments.Add(payment);
