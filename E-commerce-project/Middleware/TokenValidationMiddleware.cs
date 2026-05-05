@@ -19,7 +19,7 @@ namespace E_commerce_project.Middleware
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(' ').Last();
             
 
-            var ignoredPaths = new[] { "/api/UserManagement/Login", "/api/UserManagement/Register", "/api/UserManagement/forgot-password", "/api/UserManagement/reset-password","/swagger",
+            var ignoredPaths = new[] { "/api/UserManagement/Login", "/api/UserManagement/Register","/api/UserManagement/CreateUser" , "/api/UserManagement/forgot-password", "/api/UserManagement/reset-password","/swagger",
         "/swagger/index.html","/api/ProductManagement/GetAllProducts","/api/AdminUsers/CreateUser","/api/SellerUsers/CreateUser","/api/webhooks/payment","/api/products/{id}"};
             var path = context.Request.Path.Value;
             if (ignoredPaths.Contains(context.Request.Path.Value, StringComparer.OrdinalIgnoreCase)|| path.StartsWith("/api/products", StringComparison.OrdinalIgnoreCase))
