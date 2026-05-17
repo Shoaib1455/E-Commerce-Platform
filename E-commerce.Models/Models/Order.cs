@@ -28,4 +28,6 @@ public partial class Order
     public virtual ICollection<Orderitem> Orderitems { get; set; } = new List<Orderitem>();
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+    public virtual Usermanagement? User { get; set; }
 }

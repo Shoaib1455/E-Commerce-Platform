@@ -1,5 +1,6 @@
 ﻿using E_commerce.Models.Data;
 using E_commerce.Models.Models;
+using E_commerce.ViewModels;
 using E_commerce.ViewModels.Seller;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace E_commerce.Repository.Seller.SellerStatsRepository
 {
-    public class SellerStatsRepository
+    public class SellerStatsRepository:ISellerStatsRepository
     {
         private readonly EcommerceContext _context;
         public SellerStatsRepository(EcommerceContext context) 
@@ -158,6 +159,44 @@ namespace E_commerce.Repository.Seller.SellerStatsRepository
                 Payments = payments,
                 //OtherMetrics = otherMetrics
             };
+        }
+
+        public async Task<List<OrderitemDto>> GetSellerOrders(int sellerid)
+        {
+            var orders = await _context.Orderitems
+                .Where(oi => oi.Product.Sellerid == sellerid)
+                .Select(ol => new OrderitemDto
+                {
+                    Productid = (int)ol.Productid,
+                    Quantity = (int)ol.Quantity,
+                    Unitprice = (int)ol.Unitprice,
+                    Totalprice = (int)ol.Totalprice,
+                    Orderid = (int)ol.Orderid,
+                    Status = ol.Order.Status,
+                    Createdat = (DateTime)ol.Order.Createdat,
+                    Customername=ol.Order.User.Name
+                })
+                .ToListAsync();
+            return orders;
+            
+        }
+        public async Task<List<ProductVM>> GetSellerProducts(int sellerid)
+        {
+            var products = await _context.Products
+                .Where(p=> p.Sellerid == sellerid)
+                .Select(p=> new ProductVM
+                {
+                    Id = p.Id,
+                    Name=p.Name,
+                    Sku=p.Sku,
+                    CategoryName=p.Category.Name,
+                    Quantity =p.Inventories.Where(i => (int)i.Productid == (int)p.Id).First().Quantityinstock,
+                    Price = p.Price,
+                    Status=(p.Isactive==true)?"Active":"Not Active",
+                })
+                .ToListAsync();
+            return products;
+
         }
     }
 }
