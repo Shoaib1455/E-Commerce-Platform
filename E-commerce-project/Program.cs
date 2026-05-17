@@ -8,6 +8,7 @@ using E_commerce.Repository.InventoryRepository;
 using E_commerce.Repository.OrderRepository;
 using E_commerce.Repository.PaymentRepository;
 using E_commerce.Repository.ProductRepository;
+using E_commerce.Repository.Seller.SellerStatsRepository;
 using E_commerce.Repository.UserRepository;
 using E_commerce.Services;
 using E_commerce.Services.Caching;
@@ -48,6 +49,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IAdminStatsRepository, AdminStatsRepository>();
 builder.Services.AddScoped<IInventoryRepository, InventoryRepository>();
+builder.Services.AddScoped<ISellerStatsRepository, SellerStatsRepository>();
 builder.Services.AddScoped<ICacheService, MemoryCacheService>();
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
@@ -58,7 +60,9 @@ builder.Services.AddScoped<E_commerce.Services.TokenService>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.ReferenceHandler =
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        //options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
     });
 builder.Services.AddSwaggerGen(c =>
 {

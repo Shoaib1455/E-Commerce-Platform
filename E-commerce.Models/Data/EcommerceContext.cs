@@ -234,6 +234,10 @@ public partial class EcommerceContext : DbContext
             entity.HasOne(d => d.Address).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.Addressid)
                 .HasConstraintName("fk-addressid");
+
+            entity.HasOne(d => d.User).WithMany(p => p.Orders)
+                .HasForeignKey(d => d.Userid)
+                .HasConstraintName("fk-userid");
         });
 
         modelBuilder.Entity<Orderitem>(entity =>
